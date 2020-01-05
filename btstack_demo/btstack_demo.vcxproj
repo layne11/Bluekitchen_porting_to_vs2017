@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{E1D3CD8B-1EB6-457A-BF83-D9468483E374}</ProjectGuid>
+    <Keyword>MFCProj</Keyword>
+    <RootNamespace>btstackdemo</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\btstack\3rd-party\bluedroid\encoder\include;.\btstack\3rd-party\bluedroid\decoder\include;.\btstack\3rd-party\hxcmod-player\mods;.\btstack\3rd-party\hxcmod_player;.\btstack\3rd-party\md5;.\btstack\3rd-party\micro-ecc;.\btstack\3rd-party\segger-rtt;.\btstack\3rd-party\tinydir;.\btstack\3rd-party\yxml;.\btstack\app;.\btstack\chipset\intel;.\btstack\chipset\csr;.\btstack\platform\windows;.\btstack\platform\posix;.\btstack\platform\posix\include;.\btstack\src;.\btstack\src\classic;.\btstack\src\ble;.\btstack\src\ble\gatt-service;.\btstack\port\windows-winusb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>winusb.lib;setupapi.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="btstack\3rd-party\md5\md5.h" />
+    <ClInclude Include="btstack\3rd-party\segger-rtt\SEGGER_RTT.h" />
+    <ClInclude Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Conf.h" />
+    <ClInclude Include="btstack\3rd-party\tinydir\tinydir.h" />
+    <ClInclude Include="btstack\3rd-party\yxml\yxml.h" />
+    <ClInclude Include="btstack\app\app.h" />
+    <ClInclude Include="btstack\chipset\intel\btstack_chipset_intel_firmware.h" />
+    <ClInclude Include="btstack\platform\posix\btstack_link_key_db_fs.h" />
+    <ClInclude Include="btstack\platform\posix\wav_util.h" />
+    <ClInclude Include="btstack\platform\windows\btstack_run_loop_windows.h" />
+    <ClInclude Include="btstack\src\ad_parser.h" />
+    <ClInclude Include="btstack\src\ble\ancs_client.h" />
+    <ClInclude Include="btstack\src\ble\att_db.h" />
+    <ClInclude Include="btstack\src\ble\att_db_util.h" />
+    <ClInclude Include="btstack\src\ble\att_dispatch.h" />
+    <ClInclude Include="btstack\src\ble\att_server.h" />
+    <ClInclude Include="btstack\src\ble\core.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\battery_service_server.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\cycling_power_service_server.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\cycling_speed_and_cadence_service_server.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\device_information_service_server.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\heart_rate_service_server.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\hids_device.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\nordic_spp_service_server.h" />
+    <ClInclude Include="btstack\src\ble\gatt-service\ublox_spp_service_server.h" />
+    <ClInclude Include="btstack\src\ble\gatt_client.h" />
+    <ClInclude Include="btstack\src\ble\le_device_db.h" />
+    <ClInclude Include="btstack\src\ble\sm.h" />
+    <ClInclude Include="btstack\src\bluetooth.h" />
+    <ClInclude Include="btstack\src\bluetooth_company_id.h" />
+    <ClInclude Include="btstack\src\bluetooth_data_types.h" />
+    <ClInclude Include="btstack\src\bluetooth_gatt.h" />
+    <ClInclude Include="btstack\src\bluetooth_sdp.h" />
+    <ClInclude Include="btstack\src\btstack.h" />
+    <ClInclude Include="btstack\src\btstack_audio.h" />
+    <ClInclude Include="btstack\src\btstack_base64_decoder.h" />
+    <ClInclude Include="btstack\src\btstack_chipset.h" />
+    <ClInclude Include="btstack\src\btstack_control.h" />
+    <ClInclude Include="btstack\src\btstack_crypto.h" />
+    <ClInclude Include="btstack\src\btstack_debug.h" />
+    <ClInclude Include="btstack\src\btstack_defines.h" />
+    <ClInclude Include="btstack\src\btstack_em9304_spi.h" />
+    <ClInclude Include="btstack\src\btstack_event.h" />
+    <ClInclude Include="btstack\src\btstack_hid_parser.h" />
+    <ClInclude Include="btstack\src\btstack_linked_list.h" />
+    <ClInclude Include="btstack\src\btstack_memory.h" />
+    <ClInclude Include="btstack\src\btstack_memory_pool.h" />
+    <ClInclude Include="btstack\src\btstack_network.h" />
+    <ClInclude Include="btstack\src\btstack_resample.h" />
+    <ClInclude Include="btstack\src\btstack_ring_buffer.h" />
+    <ClInclude Include="btstack\src\btstack_run_loop.h" />
+    <ClInclude Include="btstack\src\btstack_slip.h" />
+    <ClInclude Include="btstack\src\btstack_stdin.h" />
+    <ClInclude Include="btstack\src\btstack_tlv.h" />
+    <ClInclude Include="btstack\src\btstack_uart_block.h" />
+    <ClInclude Include="btstack\src\btstack_util.h" />
+    <ClInclude Include="btstack\src\classic\a2dp_sink.h" />
+    <ClInclude Include="btstack\src\classic\a2dp_source.h" />
+    <ClInclude Include="btstack\src\classic\avdtp.h" />
+    <ClInclude Include="btstack\src\classic\avdtp_acceptor.h" />
+    <ClInclude Include="btstack\src\classic\avdtp_initiator.h" />
+    <ClInclude Include="btstack\src\classic\avdtp_sink.h" />
+    <ClInclude Include="btstack\src\classic\avdtp_source.h" />
+    <ClInclude Include="btstack\src\classic\avdtp_util.h" />
+    <ClInclude Include="btstack\src\classic\avrcp.h" />
+    <ClInclude Include="btstack\src\classic\avrcp_browsing_controller.h" />
+    <ClInclude Include="btstack\src\classic\avrcp_browsing_target.h" />
+    <ClInclude Include="btstack\src\classic\avrcp_controller.h" />
+    <ClInclude Include="btstack\src\classic\avrcp_media_item_iterator.h" />
+    <ClInclude Include="btstack\src\classic\avrcp_target.h" />
+    <ClInclude Include="btstack\src\classic\bnep.h" />
+    <ClInclude Include="btstack\src\classic\btstack_cvsd_plc.h" />
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db.h" />
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db_memory.h" />
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db_static.h" />
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db_tlv.h" />
+    <ClInclude Include="btstack\src\classic\btstack_sbc.h" />
+    <ClInclude Include="btstack\src\classic\btstack_sbc_plc.h" />
+    <ClInclude Include="btstack\src\classic\core.h" />
+    <ClInclude Include="btstack\src\classic\device_id_server.h" />
+    <ClInclude Include="btstack\src\classic\goep_client.h" />
+    <ClInclude Include="btstack\src\classic\hfp.h" />
+    <ClInclude Include="btstack\src\classic\hfp_ag.h" />
+    <ClInclude Include="btstack\src\classic\hfp_gsm_model.h" />
+    <ClInclude Include="btstack\src\classic\hfp_hf.h" />
+    <ClInclude Include="btstack\src\classic\hfp_msbc.h" />
+    <ClInclude Include="btstack\src\classic\hid_device.h" />
+    <ClInclude Include="btstack\src\classic\hsp_ag.h" />
+    <ClInclude Include="btstack\src\classic\hsp_hs.h" />
+    <ClInclude Include="btstack\src\classic\obex.h" />
+    <ClInclude Include="btstack\src\classic\obex_iterator.h" />
+    <ClInclude Include="btstack\src\classic\obex_message_builder.h" />
+    <ClInclude Include="btstack\src\classic\pan.h" />
+    <ClInclude Include="btstack\src\classic\pbap_client.h" />
+    <ClInclude Include="btstack\src\classic\rfcomm.h" />
+    <ClInclude Include="btstack\src\classic\sbc_decoder.h" />
+    <ClInclude Include="btstack\src\classic\sdp_client.h" />
+    <ClInclude Include="btstack\src\classic\sdp_client_rfcomm.h" />
+    <ClInclude Include="btstack\src\classic\sdp_server.h" />
+    <ClInclude Include="btstack\src\classic\sdp_util.h" />
+    <ClInclude Include="btstack\src\classic\spp_server.h" />
+    <ClInclude Include="btstack\src\gap.h" />
+    <ClInclude Include="btstack\src\hci.h" />
+    <ClInclude Include="btstack\src\hci_cmd.h" />
+    <ClInclude Include="btstack\src\hci_dump.h" />
+    <ClInclude Include="btstack\src\hci_transport.h" />
+    <ClInclude Include="btstack\src\l2cap.h" />
+    <ClInclude Include="btstack\src\l2cap_signaling.h" />
+    <ClInclude Include="btstack_demo.h" />
+    <ClInclude Include="btstack_demoDlg.h" />
+    <ClInclude Include="PropSheet.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\alloc.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitalloc-sbc.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitalloc.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitstream-decode.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\decoder-oina.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\decoder-private.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\decoder-sbc.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\dequant.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\framing-sbc.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\framing.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\oi_codec_version.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\synthesis-8-generated.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\synthesis-dct8.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\synthesis-sbc.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_analysis.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_dct.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_dct_coeffs.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_encoder.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_enc_bit_alloc_mono.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_enc_bit_alloc_ste.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_enc_coeffs.c" />
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_packing.c" />
+    <ClCompile Include="btstack\3rd-party\hxcmod-player\hxcmod.c" />
+    <ClCompile Include="btstack\3rd-party\hxcmod-player\mods\nao-deceased_by_disease.c" />
+    <ClCompile Include="btstack\3rd-party\md5\md5.c" />
+    <ClCompile Include="btstack\3rd-party\micro-ecc\uECC.c" />
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT.c" />
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_printf.c" />
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_GCC.c" />
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_IAR.c" />
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_KEIL.c" />
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_SES.c" />
+    <ClCompile Include="btstack\3rd-party\yxml\yxml.c" />
+    <ClCompile Include="btstack\app\a2dp_sink_demo.c" />
+    <ClCompile Include="btstack\app\app.c" />
+    <ClCompile Include="btstack\app\hfp_hf_demo.c" />
+    <ClCompile Include="btstack\app\le_streamer.c" />
+    <ClCompile Include="btstack\app\le_streamer_client.c" />
+    <ClCompile Include="btstack\app\sco_demo_util.c" />
+    <ClCompile Include="btstack\app\spp_streamer.c" />
+    <ClCompile Include="btstack\chipset\intel\btstack_chipset_intel_firmware.c" />
+    <ClCompile Include="btstack\platform\posix\btstack_audio_portaudio.c" />
+    <ClCompile Include="btstack\platform\posix\btstack_link_key_db_fs.c" />
+    <ClCompile Include="btstack\platform\posix\wav_util.c" />
+    <ClCompile Include="btstack\platform\windows\btstack_run_loop_windows.c" />
+    <ClCompile Include="btstack\platform\windows\btstack_stdin_windows.c" />
+    <ClCompile Include="btstack\platform\windows\btstack_uart_block_windows.c" />
+    <ClCompile Include="btstack\platform\windows\hci_transport_h2_winusb.c" />
+    <ClCompile Include="btstack\port\windows-winusb\main.c" />
+    <ClCompile Include="btstack\src\ad_parser.c" />
+    <ClCompile Include="btstack\src\ble\ancs_client.c" />
+    <ClCompile Include="btstack\src\ble\att_db.c" />
+    <ClCompile Include="btstack\src\ble\att_db_util.c" />
+    <ClCompile Include="btstack\src\ble\att_dispatch.c" />
+    <ClCompile Include="btstack\src\ble\att_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\battery_service_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\cycling_power_service_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\cycling_speed_and_cadence_service_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\device_information_service_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\heart_rate_service_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\hids_device.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\nordic_spp_service_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt-service\ublox_spp_service_server.c" />
+    <ClCompile Include="btstack\src\ble\gatt_client.c" />
+    <ClCompile Include="btstack\src\ble\le_device_db_memory.c" />
+    <ClCompile Include="btstack\src\ble\le_device_db_tlv.c" />
+    <ClCompile Include="btstack\src\ble\sm.c" />
+    <ClCompile Include="btstack\src\btstack_audio.c" />
+    <ClCompile Include="btstack\src\btstack_base64_decoder.c" />
+    <ClCompile Include="btstack\src\btstack_crypto.c" />
+    <ClCompile Include="btstack\src\btstack_hid_parser.c" />
+    <ClCompile Include="btstack\src\btstack_linked_list.c" />
+    <ClCompile Include="btstack\src\btstack_memory.c" />
+    <ClCompile Include="btstack\src\btstack_memory_pool.c" />
+    <ClCompile Include="btstack\src\btstack_resample.c" />
+    <ClCompile Include="btstack\src\btstack_ring_buffer.c" />
+    <ClCompile Include="btstack\src\btstack_run_loop.c" />
+    <ClCompile Include="btstack\src\btstack_slip.c" />
+    <ClCompile Include="btstack\src\btstack_tlv.c" />
+    <ClCompile Include="btstack\src\btstack_util.c" />
+    <ClCompile Include="btstack\src\classic\a2dp_sink.c" />
+    <ClCompile Include="btstack\src\classic\a2dp_source.c" />
+    <ClCompile Include="btstack\src\classic\avdtp.c" />
+    <ClCompile Include="btstack\src\classic\avdtp_acceptor.c" />
+    <ClCompile Include="btstack\src\classic\avdtp_initiator.c" />
+    <ClCompile Include="btstack\src\classic\avdtp_sink.c" />
+    <ClCompile Include="btstack\src\classic\avdtp_source.c" />
+    <ClCompile Include="btstack\src\classic\avdtp_util.c" />
+    <ClCompile Include="btstack\src\classic\avrcp.c" />
+    <ClCompile Include="btstack\src\classic\avrcp_browsing_controller.c" />
+    <ClCompile Include="btstack\src\classic\avrcp_browsing_target.c" />
+    <ClCompile Include="btstack\src\classic\avrcp_controller.c" />
+    <ClCompile Include="btstack\src\classic\avrcp_media_item_iterator.c" />
+    <ClCompile Include="btstack\src\classic\avrcp_target.c" />
+    <ClCompile Include="btstack\src\classic\bnep.c" />
+    <ClCompile Include="btstack\src\classic\btstack_cvsd_plc.c" />
+    <ClCompile Include="btstack\src\classic\btstack_link_key_db_memory.c" />
+    <ClCompile Include="btstack\src\classic\btstack_link_key_db_static.c" />
+    <ClCompile Include="btstack\src\classic\btstack_link_key_db_tlv.c" />
+    <ClCompile Include="btstack\src\classic\btstack_sbc_decoder_bluedroid.c" />
+    <ClCompile Include="btstack\src\classic\btstack_sbc_encoder_bluedroid.c" />
+    <ClCompile Include="btstack\src\classic\btstack_sbc_plc.c" />
+    <ClCompile Include="btstack\src\classic\device_id_server.c" />
+    <ClCompile Include="btstack\src\classic\goep_client.c" />
+    <ClCompile Include="btstack\src\classic\hfp.c" />
+    <ClCompile Include="btstack\src\classic\hfp_ag.c" />
+    <ClCompile Include="btstack\src\classic\hfp_gsm_model.c" />
+    <ClCompile Include="btstack\src\classic\hfp_hf.c" />
+    <ClCompile Include="btstack\src\classic\hfp_msbc.c" />
+    <ClCompile Include="btstack\src\classic\hid_device.c" />
+    <ClCompile Include="btstack\src\classic\hsp_ag.c" />
+    <ClCompile Include="btstack\src\classic\hsp_hs.c" />
+    <ClCompile Include="btstack\src\classic\obex_iterator.c" />
+    <ClCompile Include="btstack\src\classic\obex_message_builder.c" />
+    <ClCompile Include="btstack\src\classic\pan.c" />
+    <ClCompile Include="btstack\src\classic\pbap_client.c" />
+    <ClCompile Include="btstack\src\classic\rfcomm.c" />
+    <ClCompile Include="btstack\src\classic\sdp_client.c" />
+    <ClCompile Include="btstack\src\classic\sdp_client_rfcomm.c" />
+    <ClCompile Include="btstack\src\classic\sdp_server.c" />
+    <ClCompile Include="btstack\src\classic\sdp_util.c" />
+    <ClCompile Include="btstack\src\classic\spp_server.c" />
+    <ClCompile Include="btstack\src\hci.c" />
+    <ClCompile Include="btstack\src\hci_cmd.c" />
+    <ClCompile Include="btstack\src\hci_dump.c" />
+    <ClCompile Include="btstack\src\hci_transport_em9304_spi.c" />
+    <ClCompile Include="btstack\src\hci_transport_h4.c" />
+    <ClCompile Include="btstack\src\hci_transport_h5.c" />
+    <ClCompile Include="btstack\src\l2cap.c" />
+    <ClCompile Include="btstack\src\l2cap_signaling.c" />
+    <ClCompile Include="btstack_demo.cpp" />
+    <ClCompile Include="btstack_demoDlg.cpp" />
+    <ClCompile Include="PropSheet.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="btstackdemo.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="btstack\3rd-party\bluedroid\decoder\srce\readsamplesjoint.inc" />
+    <None Include="btstack\src\ble\gatt-service\battery_service.gatt" />
+    <None Include="btstack\src\ble\gatt-service\cycling_power_service.gatt" />
+    <None Include="btstack\src\ble\gatt-service\cycling_speed_and_cadence_service.gatt" />
+    <None Include="btstack\src\ble\gatt-service\device_information_service.gatt" />
+    <None Include="btstack\src\ble\gatt-service\heart_rate_service.gatt" />
+    <None Include="btstack\src\ble\gatt-service\hids.gatt" />
+    <None Include="btstack\src\ble\gatt-service\Makefile.inc" />
+    <None Include="btstack\src\ble\gatt-service\nordic_spp_service.gatt" />
+    <None Include="btstack\src\ble\gatt-service\ublox_spp_service.gatt" />
+    <None Include="btstack\src\classic\Makefile.inc" />
+    <None Include="res\btstackdemo.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\btstack_demo.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,882 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\btstack">
+      <UniqueIdentifier>{20359e24-8913-44a4-90a7-cde6b6bb1398}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\src">
+      <UniqueIdentifier>{7d69fbd3-64c2-4639-a06d-8fd3a41142c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\src\ble">
+      <UniqueIdentifier>{730df224-baf6-4b39-aa9d-f4eaed145425}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\src\ble\gatt_service">
+      <UniqueIdentifier>{1dbc2b7b-9f15-44d8-9d6b-2b65f0a69c4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\src\classic">
+      <UniqueIdentifier>{26b1fea4-5141-4f81-9c71-3afc749fb988}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\port">
+      <UniqueIdentifier>{e727f001-ed3f-4c5c-9921-e7f76fc7bbc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\port\windows_winusb">
+      <UniqueIdentifier>{03b88f1f-535e-4263-b49c-edc7e4505720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party">
+      <UniqueIdentifier>{7b90891e-bf0c-41d8-8e0b-9f45ef860dc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\md5">
+      <UniqueIdentifier>{e9886079-a1f4-47d9-9dbf-31ee47fd7426}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\hxcmod-player">
+      <UniqueIdentifier>{3c88813c-3503-4c61-a54c-05ab17e7b47b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\micro-ecc">
+      <UniqueIdentifier>{2b9f31a6-a79c-4530-958c-5190734e20c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\segger-rtt">
+      <UniqueIdentifier>{35465fa8-8a76-49ec-9ac6-7c11997a7517}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\tinydir">
+      <UniqueIdentifier>{1391a946-dfd0-4c1e-9d55-f68dba58943a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\yxml">
+      <UniqueIdentifier>{f38d871c-f664-4391-889e-5d9bcbb83227}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\buledroid">
+      <UniqueIdentifier>{55ea3e5e-8c46-4949-9490-61ddde6498d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\buledroid\decoder">
+      <UniqueIdentifier>{f70e6c76-0769-401d-a255-367852a93275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\3rd-party\buledroid\encoder">
+      <UniqueIdentifier>{a03a9265-8287-4657-90c3-2e57b0a89b14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\platform">
+      <UniqueIdentifier>{ed6bd8b6-1ea8-4531-99e1-6b17a160a639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\platform\posix">
+      <UniqueIdentifier>{2b2cc8be-88ed-4c11-b888-bf6422cfcfd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\platform\windows">
+      <UniqueIdentifier>{e01a71dc-7263-43c0-b053-a54becc2f2dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\chipset">
+      <UniqueIdentifier>{8fc6ef20-6210-4606-851c-0f4db5a6b5f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\chipset\intel">
+      <UniqueIdentifier>{0719e827-1220-4698-8fe1-248c18822652}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\btstack\app">
+      <UniqueIdentifier>{38f6f974-6771-49c6-b1db-92e2f90a6ac0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="btstack_demo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack_demoDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ad_parser.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\bluetooth.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\bluetooth_company_id.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\bluetooth_data_types.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\bluetooth_gatt.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\bluetooth_sdp.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_audio.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_base64_decoder.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_chipset.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_control.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_crypto.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_debug.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_defines.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_em9304_spi.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_event.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_hid_parser.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_linked_list.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_memory.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_memory_pool.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_network.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_resample.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_ring_buffer.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_run_loop.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_slip.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_stdin.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_tlv.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_uart_block.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\btstack_util.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\gap.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\hci.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\hci_cmd.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\hci_dump.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\hci_transport.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\l2cap.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\l2cap_signaling.h">
+      <Filter>源文件\btstack\src</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\ancs_client.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\att_db.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\att_db_util.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\att_dispatch.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\att_server.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\core.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt_client.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\le_device_db.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\sm.h">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\battery_service_server.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\cycling_power_service_server.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\cycling_speed_and_cadence_service_server.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\device_information_service_server.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\heart_rate_service_server.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\hids_device.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\nordic_spp_service_server.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\ble\gatt-service\ublox_spp_service_server.h">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\a2dp_sink.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\a2dp_source.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avdtp.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avdtp_acceptor.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avdtp_initiator.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avdtp_sink.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avdtp_source.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avdtp_util.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avrcp.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avrcp_browsing_controller.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avrcp_browsing_target.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avrcp_controller.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avrcp_media_item_iterator.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\avrcp_target.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\bnep.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\btstack_cvsd_plc.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db_memory.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db_static.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\btstack_link_key_db_tlv.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\btstack_sbc.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\btstack_sbc_plc.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\core.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\device_id_server.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\goep_client.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hfp.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hfp_ag.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hfp_gsm_model.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hfp_hf.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hfp_msbc.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hid_device.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hsp_ag.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\hsp_hs.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\obex.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\obex_iterator.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\obex_message_builder.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\pan.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\pbap_client.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\rfcomm.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\sbc_decoder.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\sdp_client.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\sdp_client_rfcomm.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\sdp_server.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\sdp_util.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\src\classic\spp_server.h">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\3rd-party\md5\md5.h">
+      <Filter>源文件\btstack\3rd-party\md5</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\3rd-party\yxml\yxml.h">
+      <Filter>源文件\btstack\3rd-party\yxml</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\3rd-party\tinydir\tinydir.h">
+      <Filter>源文件\btstack\3rd-party\tinydir</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\3rd-party\segger-rtt\SEGGER_RTT.h">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Conf.h">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\platform\windows\btstack_run_loop_windows.h">
+      <Filter>源文件\btstack\platform\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\chipset\intel\btstack_chipset_intel_firmware.h">
+      <Filter>源文件\btstack\chipset\intel</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\platform\posix\btstack_link_key_db_fs.h">
+      <Filter>源文件\btstack\platform\posix</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\platform\posix\wav_util.h">
+      <Filter>源文件\btstack\platform\posix</Filter>
+    </ClInclude>
+    <ClInclude Include="PropSheet.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="btstack\app\app.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="btstack_demo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack_demoDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ad_parser.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_audio.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_base64_decoder.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_crypto.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_hid_parser.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_linked_list.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_memory.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_memory_pool.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_resample.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_ring_buffer.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_run_loop.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_slip.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_tlv.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\btstack_util.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\hci.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\hci_cmd.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\hci_dump.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\hci_transport_em9304_spi.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\hci_transport_h4.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\hci_transport_h5.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\l2cap.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\l2cap_signaling.c">
+      <Filter>源文件\btstack\src</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\ancs_client.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\att_db.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\att_db_util.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\att_dispatch.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\att_server.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt_client.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\sm.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\battery_service_server.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\cycling_power_service_server.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\cycling_speed_and_cadence_service_server.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\device_information_service_server.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\heart_rate_service_server.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\hids_device.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\nordic_spp_service_server.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\gatt-service\ublox_spp_service_server.c">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\a2dp_sink.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\a2dp_source.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avdtp.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avdtp_acceptor.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avdtp_initiator.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avdtp_sink.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avdtp_source.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avdtp_util.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avrcp.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avrcp_browsing_controller.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avrcp_browsing_target.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avrcp_controller.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avrcp_media_item_iterator.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\avrcp_target.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\bnep.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\btstack_cvsd_plc.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\btstack_link_key_db_memory.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\btstack_link_key_db_static.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\btstack_link_key_db_tlv.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\btstack_sbc_decoder_bluedroid.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\btstack_sbc_encoder_bluedroid.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\btstack_sbc_plc.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\device_id_server.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\goep_client.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hfp.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hfp_ag.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hfp_gsm_model.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hfp_hf.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hfp_msbc.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hid_device.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hsp_ag.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\hsp_hs.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\obex_iterator.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\obex_message_builder.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\pan.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\pbap_client.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\rfcomm.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\sdp_client.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\sdp_client_rfcomm.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\sdp_server.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\sdp_util.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\classic\spp_server.c">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\alloc.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitalloc.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitalloc-sbc.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitstream-decode.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\decoder-oina.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\decoder-private.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\decoder-sbc.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\dequant.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\framing.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\framing-sbc.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\oi_codec_version.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\synthesis-8-generated.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\synthesis-dct8.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\synthesis-sbc.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_analysis.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_dct.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_dct_coeffs.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_enc_bit_alloc_mono.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_enc_bit_alloc_ste.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_enc_coeffs.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_encoder.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\bluedroid\encoder\srce\sbc_packing.c">
+      <Filter>源文件\btstack\3rd-party\buledroid\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\md5\md5.c">
+      <Filter>源文件\btstack\3rd-party\md5</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\hxcmod-player\hxcmod.c">
+      <Filter>源文件\btstack\3rd-party\hxcmod-player</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\hxcmod-player\mods\nao-deceased_by_disease.c">
+      <Filter>源文件\btstack\3rd-party\hxcmod-player</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\micro-ecc\uECC.c">
+      <Filter>源文件\btstack\3rd-party\micro-ecc</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\yxml\yxml.c">
+      <Filter>源文件\btstack\3rd-party\yxml</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT.c">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_printf.c">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_GCC.c">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_IAR.c">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_KEIL.c">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_SES.c">
+      <Filter>源文件\btstack\3rd-party\segger-rtt</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\platform\windows\btstack_run_loop_windows.c">
+      <Filter>源文件\btstack\platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\platform\windows\btstack_stdin_windows.c">
+      <Filter>源文件\btstack\platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\platform\windows\btstack_uart_block_windows.c">
+      <Filter>源文件\btstack\platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\platform\windows\hci_transport_h2_winusb.c">
+      <Filter>源文件\btstack\platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\port\windows-winusb\main.c">
+      <Filter>源文件\btstack\port\windows_winusb</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\chipset\intel\btstack_chipset_intel_firmware.c">
+      <Filter>源文件\btstack\chipset\intel</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\platform\posix\btstack_audio_portaudio.c">
+      <Filter>源文件\btstack\platform\posix</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\platform\posix\btstack_link_key_db_fs.c">
+      <Filter>源文件\btstack\platform\posix</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\platform\posix\wav_util.c">
+      <Filter>源文件\btstack\platform\posix</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\le_streamer.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\le_streamer_client.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\spp_streamer.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="PropSheet.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\hfp_hf_demo.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\sco_demo_util.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\app.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\a2dp_sink_demo.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\le_device_db_memory.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\src\ble\le_device_db_tlv.c">
+      <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="btstackdemo.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\btstackdemo.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\battery_service.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\cycling_power_service.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\cycling_speed_and_cadence_service.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\device_information_service.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\heart_rate_service.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\hids.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\Makefile.inc">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\nordic_spp_service.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\ble\gatt-service\ublox_spp_service.gatt">
+      <Filter>源文件\btstack\src\ble\gatt_service</Filter>
+    </None>
+    <None Include="btstack\src\classic\Makefile.inc">
+      <Filter>源文件\btstack\src\classic</Filter>
+    </None>
+    <None Include="btstack\3rd-party\bluedroid\decoder\srce\readsamplesjoint.inc">
+      <Filter>源文件\btstack\3rd-party\buledroid\decoder</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\btstack_demo.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

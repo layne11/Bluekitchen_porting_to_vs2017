@@ -61,12 +61,13 @@
 #ifdef HAVE_BTSTACK_STDIN
 #include "btstack_stdin.h"
 #endif
+#include "app.h"
 
 // uncomment to temp disable mSBC codec
 // #undef ENABLE_HFP_WIDE_BAND_SPEECH
 
 uint8_t hfp_service_buffer[150];
-const uint8_t    rfcomm_channel_nr = 1;
+const static uint8_t    rfcomm_channel_nr = 1;
 const char hfp_ag_service_name[] = "HFP AG Demo";
 
 static bd_addr_t device_addr;
@@ -84,7 +85,8 @@ static hci_con_handle_t acl_handle = HCI_CON_HANDLE_INVALID;
 static hci_con_handle_t sco_handle = HCI_CON_HANDLE_INVALID;
 static int memory_1_enabled = 1;
 static btstack_packet_callback_registration_t hci_event_callback_registration;
-
+btstack_evt_handler_t hfp_ag_evt_handler = NULL;
+static int g_hf_ag_sco_data_send_enable = 0;
 static int ag_indicators_nr = 7;
 static hfp_ag_indicator_t ag_indicators[] = {
     // index, name, min range, max range, status, mandatory, enabled, status changed
@@ -109,7 +111,7 @@ static hfp_generic_status_indicator_t hf_indicators[] = {
 #define INQUIRY_INTERVAL 5
 
 enum STATE {INIT, W4_INQUIRY_MODE_COMPLETE, ACTIVE} ;
-enum STATE state = INIT;
+static enum STATE hfp_ag_state = INIT;
 
 static void dump_supported_codecs(void){
     unsigned int i;
@@ -135,52 +137,47 @@ static void dump_supported_codecs(void){
     }
 }
 
-#ifdef HAVE_BTSTACK_STDIN
-// Testig User Interface 
-static void show_usage(void){
-    bd_addr_t iut_address;
-    gap_local_bd_addr(iut_address);
 
-    printf("\n--- Bluetooth HFP Audiogateway (AG) unit Test Console %s ---\n", bd_addr_to_str(iut_address));
-    printf("\n");
+/*--- Bluetooth HFP Audiogateway (AG) unit Test ---*/
+/*
+a[addr] - establish HFP connection to [addr]
+A - release HFP connection
     
-    printf("a - establish HFP connection to %s\n", bd_addr_to_str(device_addr));
-    // printf("A - release HFP connection\n");
-    
-    printf("b - establish AUDIO connection          | B - release AUDIO connection\n");
-    printf("c - simulate incoming call from 1234567 | C - simulate call from 1234567 dropped\n");
-    printf("d - report AG failure\n");
-    printf("e - answer call on AG                   | E - reject call on AG\n");
-    printf("r - disable in-band ring tone           | R - enable in-band ring tone\n");
-    printf("f - Disable cellular network            | F - Enable cellular network\n");
-    printf("g - Set signal strength to 0            | G - Set signal strength to 5\n");
-    printf("h - Disable roaming                     | H - Enable roaming\n");
-    printf("i - Set battery level to 3              | I - Set battery level to 5\n");
-    printf("j - Answering call on remote side\n");
-    printf("k - Clear memory #1                     | K - Set memory #1\n");
-    printf("l - Clear last number                   | L - Set last number\n");
-    printf("m - simulate incoming call from 7654321\n");
-    // printf("M - simulate call from 7654321 dropped\n");
-    printf("n - Disable Voice Regocnition           | N - Enable Voice Recognition\n");
-    printf("o - Set speaker volume to 0  (minimum)  | O - Set speaker volume to 9  (default)\n");
-    printf("p - Set speaker volume to 12 (higher)   | P - Set speaker volume to 15 (maximum)\n");
-    printf("q - Set microphone gain to 0  (minimum) | Q - Set microphone gain to 9  (default)\n");
-    printf("s - Set microphone gain to 12 (higher)  | S - Set microphone gain to 15 (maximum)\n");
-    printf("t - terminate connection\n");
-    printf("u - join held call\n");
-    printf("v - discover nearby HF units\n");
-    printf("w - put incoming call on hold (Response and Hold)\n");
-    printf("x - accept held incoming call (Response and Hold)\n");
-    printf("X - reject held incoming call (Response and Hold)\n");
-    printf("---\n");
-}
+b - establish AUDIO connection          | B - release AUDIO connection
+c - simulate incoming call from 1234567 | C - simulate call from 1234567 dropped
+d - report AG failure\n");
+e - answer call on AG                   | E - reject call on AG
+r - disable in-band ring tone           | R - enable in-band ring tone
+f - Disable cellular network            | F - Enable cellular network
+g - Set signal strength to 0            | G - Set signal strength to 5
+h - Disable roaming                     | H - Enable roaming
+i - Set battery level to 3              | I - Set battery level to 5
+j - Answering call on remote side
+k - Clear memory #1                     | K - Set memory #1\n");
+l - Clear last number                   | L - Set last number\n");
+m - simulate incoming call from 7654321 | M - simulate call from 7654321 dropped
+n - Disable Voice Regocnition           | N - Enable Voice Recognition
+o - Set speaker volume to 0  (minimum)  | O - Set speaker volume to 9  (default)
+p - Set speaker volume to 12 (higher)   | P - Set speaker volume to 15 (maximum)
+q - Set microphone gain to 0  (minimum) | Q - Set microphone gain to 9  (default)
+s - Set microphone gain to 12 (higher)  | S - Set microphone gain to 15 (maximum)
+t - terminate connection
+u - join held call
+v - discover nearby HF units
+w - put incoming call on hold (Response and Hold)
+x - accept held incoming call (Response and Hold)
+X - reject held incoming call (Response and Hold)
+*/
 
-static void stdin_process(char cmd){
+static void hfp_ag_cmd_process(char cmd, void *param){
     switch (cmd){
         case 'a':
-            log_info("USER:\'%c\'", cmd);
+		{
+			bd_addr_t device_addr;
+			memcpy(device_addr, param, sizeof(bd_addr_t));
             printf("Establish HFP service level connection to %s...\n", bd_addr_to_str(device_addr));
             hfp_ag_establish_service_level_connection(device_addr);
+		}
             break;
         case 'A':
             log_info("USER:\'%c\'", cmd);
@@ -389,11 +386,10 @@ static void stdin_process(char cmd){
             hfp_ag_reject_held_incoming_call();
             break;
         default:
-            show_usage();
             break;
     }
 }
-#endif
+
 
 static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * event, uint16_t event_size){
     UNUSED(channel);
@@ -402,15 +398,13 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
     switch (packet_type){
         case HCI_EVENT_PACKET:
             switch(hci_event_packet_get_type(event)){
-#ifndef HAVE_BTSTACK_STDIN
                 case BTSTACK_EVENT_STATE:
                     if (btstack_event_state_get_state(event) != HCI_STATE_WORKING) break;
-                    printf("Establish HFP AG service level connection to %s...\n", bd_addr_to_str(device_addr));
-                    hfp_ag_establish_service_level_connection(device_addr);
+                    //printf("Establish HFP AG service level connection to %s...\n", bd_addr_to_str(device_addr));
+                    //hfp_ag_establish_service_level_connection(device_addr);
                     break;
-#endif
                 case GAP_EVENT_INQUIRY_RESULT:
-                    gap_event_inquiry_result_get_bd_addr(event, addr);
+                    /*gap_event_inquiry_result_get_bd_addr(event, addr);
                     // print info
                     printf("Device found: %s ",  bd_addr_to_str(addr));
                     printf("with COD: 0x%06x, ", (unsigned int) gap_event_inquiry_result_get_class_of_device(event));
@@ -424,12 +418,13 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
                         name_buffer[name_len] = 0;
                         printf(", name '%s'", name_buffer);
                     }
-                    printf("\n");
+                    printf("\n");*/
                     break;
                 case GAP_EVENT_INQUIRY_COMPLETE:
                     printf("Inquiry scan complete.\n");
                     break;
                 case HCI_EVENT_SCO_CAN_SEND_NOW:
+					g_hf_ag_sco_data_send_enable = 1;
                     sco_demo_send(sco_handle); 
                     break; 
                 case HCI_EVENT_COMMAND_COMPLETE:
@@ -462,11 +457,10 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
                     hfp_subevent_service_level_connection_established_get_bd_addr(event, device_addr);
                     printf("Service level connection established to %s.\n", bd_addr_to_str(device_addr));
                     dump_supported_codecs();
-#ifndef HAVE_BTSTACK_STDIN
-                    log_info("Establish Audio connection %s", bd_addr_to_str(device_addr));
+
+                    /*log_info("Establish Audio connection %s", bd_addr_to_str(device_addr));
                     printf("Establish Audio connection %s...\n", bd_addr_to_str(device_addr));
-                    hfp_ag_establish_audio_connection(acl_handle);
-#endif
+                    hfp_ag_establish_audio_connection(acl_handle);*/
                     break;
                 case HFP_SUBEVENT_SERVICE_LEVEL_CONNECTION_RELEASED:
                     printf("Service level connection released.\n");
@@ -477,7 +471,8 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
                         printf("Audio connection establishment failed with status %u\n", hfp_subevent_audio_connection_established_get_status(event));
                     } else {
                         sco_handle = hfp_subevent_audio_connection_established_get_handle(event);
-                        printf("Audio connection established with SCO handle 0x%04x.\n", sco_handle);
+						sco_set_hf_conn_handle(sco_handle);
+						printf("Audio connection established with SCO handle 0x%04x.\n", sco_handle);
                         negotiated_codec = hfp_subevent_audio_connection_established_get_negotiated_codec(event);
                         switch (negotiated_codec){
                             case 0x01:
@@ -497,7 +492,9 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
                 case HFP_SUBEVENT_AUDIO_CONNECTION_RELEASED:
                     printf("Audio connection released\n");
                     sco_handle = HCI_CON_HANDLE_INVALID;
-                    sco_demo_close();
+					sco_set_hf_conn_handle(sco_handle);
+					sco_demo_close();
+					g_hf_ag_sco_data_send_enable = 0;
                     break;
                 case HFP_SUBEVENT_START_RINGINIG:
                     printf("Start Ringing\n");
@@ -548,6 +545,15 @@ static hfp_phone_number_t subscriber_number = {
     129, "225577"
 };
 
+void hfp_ag_cmd_control(char cmd, void *param)
+{
+	hfp_ag_cmd_process(cmd, param);
+}
+
+void hfp_ag_evt_handler_register(btstack_evt_handler_t func)
+{
+	hfp_ag_evt_handler = func;
+}
 /* @section Main Application Setup
  *
  * @text Listing MainConfiguration shows main application code. 
@@ -558,19 +564,15 @@ static hfp_phone_number_t subscriber_number = {
  */
 
 /* LISTING_START(MainConfiguration): Setup HFP Audio Gateway */
-
-int btstack_main(int argc, const char * argv[]);
-int btstack_main(int argc, const char * argv[]){
-    (void)argc;
-    (void)argv;
-
+int app_hfp_ag_init(void)
+{
     sco_demo_init();
 
-    gap_set_local_name("HFP AG Demo 00:00:00:00:00:00");
-    gap_discoverable_control(1);
+    //gap_set_local_name("HFP AG Demo 00:00:00:00:00:00");
+    //gap_discoverable_control(1);
 
     // L2CAP
-    l2cap_init();
+    //l2cap_init();
 
     uint16_t supported_features                   =
         (1<<HFP_AGSF_ESCO_S4)                     |
@@ -586,7 +588,7 @@ int btstack_main(int argc, const char * argv[]){
     int wide_band_speech = 1;
 
     // HFP
-    rfcomm_init();
+    //rfcomm_init();
     hfp_ag_init(rfcomm_channel_nr);
     hfp_ag_init_supported_features(supported_features);
     hfp_ag_init_codecs(sizeof(codecs), codecs);
@@ -596,7 +598,7 @@ int btstack_main(int argc, const char * argv[]){
     hfp_ag_set_subcriber_number_information(&subscriber_number, 1);
 
     // SDP Server
-    sdp_init();
+    //sdp_init();
     memset(hfp_service_buffer, 0, sizeof(hfp_service_buffer));
     hfp_ag_create_sdp_record( hfp_service_buffer, 0x10001, rfcomm_channel_nr, hfp_ag_service_name, 0, supported_features, wide_band_speech);
     printf("SDP service record size: %u\n", de_get_len( hfp_service_buffer));
@@ -613,11 +615,8 @@ int btstack_main(int argc, const char * argv[]){
     // parse humand readable Bluetooth address
     sscanf_bd_addr(device_addr_string, device_addr);
 
-#ifdef HAVE_BTSTACK_STDIN
-    btstack_stdin_setup(stdin_process);
-#endif  
     // turn on!
-    hci_power_control(HCI_POWER_ON);
+    //hci_power_control(HCI_POWER_ON);
     return 0;
 }
 /* LISTING_END */

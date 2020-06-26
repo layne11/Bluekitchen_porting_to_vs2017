@@ -82,6 +82,9 @@
     <Filter Include="源文件\btstack\app">
       <UniqueIdentifier>{38f6f974-6771-49c6-b1db-92e2f90a6ac0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\btstack\3rd-party\hxcmod-player\mods">
+      <UniqueIdentifier>{362b1b34-6380-432c-bc67-ff74222b8dd8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="btstack_demo.h">
@@ -426,6 +429,9 @@
     <ClInclude Include="btstack\app\app.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="app_audio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="btstack_demo.cpp">
@@ -746,9 +752,6 @@
     <ClCompile Include="btstack\3rd-party\hxcmod-player\hxcmod.c">
       <Filter>源文件\btstack\3rd-party\hxcmod-player</Filter>
     </ClCompile>
-    <ClCompile Include="btstack\3rd-party\hxcmod-player\mods\nao-deceased_by_disease.c">
-      <Filter>源文件\btstack\3rd-party\hxcmod-player</Filter>
-    </ClCompile>
     <ClCompile Include="btstack\3rd-party\micro-ecc\uECC.c">
       <Filter>源文件\btstack\3rd-party\micro-ecc</Filter>
     </ClCompile>
@@ -829,6 +832,24 @@
     </ClCompile>
     <ClCompile Include="btstack\src\ble\le_device_db_tlv.c">
       <Filter>源文件\btstack\src\ble</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\spp_streamer_client.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\a2dp_source_demo.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\hfp_ag_demo.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\3rd-party\hxcmod-player\mods\nao-deceased_by_disease.c">
+      <Filter>源文件\btstack\3rd-party\hxcmod-player\mods</Filter>
+    </ClCompile>
+    <ClCompile Include="btstack\app\gap_inquiry.c">
+      <Filter>源文件\btstack\app</Filter>
+    </ClCompile>
+    <ClCompile Include="app_audio.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

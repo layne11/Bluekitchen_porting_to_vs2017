@@ -70,7 +70,6 @@
 #include "btstack_resample.h"
 #include "app.h"
 
-//#define AVRCP_BROWSING_ENABLED
 #define HAVE_POSIX_FILE_IO
 
 #ifdef HAVE_BTSTACK_STDIN
@@ -93,6 +92,7 @@
 static btstack_sbc_decoder_state_t state;
 static btstack_sbc_mode_t mode = SBC_MODE_STANDARD;
 btstack_evt_handler_t audio_sink_evt_handler = NULL;
+audio_operation *audio_opt = NULL;
 
 // ring buffer for SBC Frames
 // below 30: add samples, 30-40: fine, above 40: drop samples
@@ -409,7 +409,9 @@ static void handle_pcm_data(int16_t * data, int num_frames, int num_channels, in
     const btstack_audio_sink_t * audio_sink = btstack_audio_sink_get_instance();
     if (!audio_sink){
 #ifdef STORE_TO_WAV_FILE
-        wav_writer_write_int16(num_frames * NUM_CHANNELS, data);
+		if(audio_opt)
+			audio_opt->auo_write(AUDIO_INSTANCE_A2DP,data, num_frames * num_channels * 2);
+		//wav_writer_write_int16(num_frames * NUM_CHANNELS, data);
 #endif
         return;
     }
@@ -440,6 +442,7 @@ static int media_processing_init(avdtp_media_codec_configuration_sbc_t configura
     btstack_sbc_decoder_init(&state, mode, handle_pcm_data, NULL);
 
 #ifdef STORE_TO_WAV_FILE
+	audio_opt->auo_open(AUDIO_INSTANCE_A2DP,configuration.sampling_frequency, 16, configuration.num_channels);
     wav_writer_open(wav_filename, configuration.num_channels, configuration.sampling_frequency);
 #endif
 
@@ -490,6 +493,7 @@ static void media_processing_close(void){
 
 #ifdef STORE_TO_WAV_FILE                 
     wav_writer_close();
+	audio_opt->auo_close(AUDIO_INSTANCE_A2DP);
     int total_frames_nr = state.good_frames_nr + state.bad_frames_nr + state.zero_frames_nr;
 
     printf("WAV Writer: Decoding done. Processed totaly %d frames:\n - %d good\n - %d bad\n", total_frames_nr, state.good_frames_nr, total_frames_nr - state.good_frames_nr);
@@ -675,7 +679,7 @@ static void avrcp_controller_packet_handler(uint8_t packet_type, uint16_t channe
             avrcp_controller_enable_notification(avrcp_controller_cid, AVRCP_NOTIFICATION_EVENT_NOW_PLAYING_CONTENT_CHANGED);
             avrcp_controller_enable_notification(avrcp_controller_cid, AVRCP_NOTIFICATION_EVENT_TRACK_CHANGED);
 			if (NULL != audio_sink_evt_handler)
-				(*audio_sink_evt_handler)(APP_EVT_AVRCP_CT_CONN, packet, size);
+				(*audio_sink_evt_handler)(APP_EVT_AVRCP_CONN, packet, size);
 			return;
         }
         case AVRCP_SUBEVENT_CONNECTION_RELEASED:
@@ -683,7 +687,7 @@ static void avrcp_controller_packet_handler(uint8_t packet_type, uint16_t channe
             avrcp_controller_cid = 0;
             avrcp_connected = 0;
 			if (NULL != audio_sink_evt_handler)
-				(*audio_sink_evt_handler)(APP_EVT_AVRCP_CT_DISCONN, packet, size);
+				(*audio_sink_evt_handler)(APP_EVT_AVRCP_DISCONN, packet, size);
 			return;
         default:
             break;
@@ -718,7 +722,7 @@ static void avrcp_controller_packet_handler(uint8_t packet_type, uint16_t channe
 			uint8_t index = avrcp_subevent_notification_playback_status_changed_get_play_status(packet);
             printf("AVRCP Controller: Playback status changed %s\n", avrcp_play_status2str(avrcp_subevent_notification_playback_status_changed_get_play_status(packet)));
 			if (NULL != audio_sink_evt_handler)
-				(*audio_sink_evt_handler)(APP_EVT_AVRCP_CT_STOP + index, packet, size);
+				(*audio_sink_evt_handler)(APP_EVT_AVRCP_STOP + index, packet, size);
 		}
 			return;
         case AVRCP_SUBEVENT_NOTIFICATION_NOW_PLAYING_CONTENT_CHANGED:
@@ -1176,7 +1180,7 @@ static void a2dp_sink_packet_handler(uint8_t packet_type, uint16_t channel, uint
             a2dp_local_seid = a2dp_subevent_stream_established_get_local_seid(packet);
             printf("A2DP  Sink      : Streaming connection is established, address %s, cid 0x%02X, local seid %d\n", bd_addr_to_str(address), a2dp_cid, a2dp_local_seid);
 			if (NULL != audio_sink_evt_handler)
-				(*audio_sink_evt_handler)(APP_EVT_A2DP_SINK_CONN, packet, size);
+				(*audio_sink_evt_handler)(APP_EVT_A2DP_CONN, packet, size);
 			break;
         
         case A2DP_SUBEVENT_STREAM_STARTED:
@@ -1205,7 +1209,7 @@ static void a2dp_sink_packet_handler(uint8_t packet_type, uint16_t channel, uint
             printf("A2DP  Sink      : Signaling connection released\n");
             media_processing_close();
 			if (NULL != audio_sink_evt_handler)
-				(*audio_sink_evt_handler)(APP_EVT_A2DP_SINK_DISCONN, packet, size);
+				(*audio_sink_evt_handler)(APP_EVT_A2DP_DISCONN, packet, size);
             break;
         default:
             printf("A2DP  Sink      : Not parsed 0x%02x\n", packet[2]);
@@ -1359,8 +1363,7 @@ static void audio_sink_cmd_process(char cmd, void *param){
             break;
 
         default:
-            //show_usage();
-            return;
+			break;
     }
     if (status != ERROR_CODE_SUCCESS){
         printf("Could not perform command, status 0x%2x\n", status);
@@ -1550,20 +1553,15 @@ void audio_sink_evt_handler_register(btstack_evt_handler_t func)
 {
 	audio_sink_evt_handler = func;
 }
-//int btstack_main(int argc, const char * argv[]);
-//int btstack_main(int argc, const char * argv[]){
+
+void audio_sink_out_in_operation_regeister(audio_operation *opt)
+{
+	audio_opt = opt;
+}
+
 int app_audio_sink_init(void)
 {
-    //UNUSED(argc);
-    //(void)argv;
-
     a2dp_and_avrcp_setup();
-
-#ifdef HAVE_BTSTACK_STDIN
-    // parse human readable Bluetooth address
-    sscanf_bd_addr(device_addr_string, device_addr);
-    btstack_stdin_setup(stdin_process);
-#endif
 
     // turn on!
     printf("Starting BTstack ...\n");

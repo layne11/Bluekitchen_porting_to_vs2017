@@ -239,7 +239,7 @@ static void hci_packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *
                     context->le_notification_enabled = 0;
                     context->connection_handle = HCI_CON_HANDLE_INVALID;
 					if (NULL != le_ser_evt_handler)
-						(*le_ser_evt_handler)(APP_EVT_GATT_SER_DISCONN, packet, size);
+						(*le_ser_evt_handler)(APP_EVT_GATT_DISCONN, packet, size);
                     break;
                 case HCI_EVENT_LE_META:
                     switch (hci_event_le_meta_get_subevent_code(packet)) {
@@ -255,7 +255,7 @@ static void hci_packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *
                             printf("%c: Connection Interval: %u.%02u ms, latency %u\n", context->name, conn_interval * 125 / 100,
                                 25 * (conn_interval & 3), hci_subevent_le_connection_complete_get_conn_latency(packet));
 							if (NULL != le_ser_evt_handler)
-								(*le_ser_evt_handler)(APP_EVT_GATT_SER_CONN, packet, size);
+								(*le_ser_evt_handler)(APP_EVT_GATT_CONN, packet, size);
 
                             // request min con interval 15 ms for iOS 11+ 
                             // gap_request_connection_parameter_update(context->connection_handle, 12, 12, 0, 0x0048);
@@ -400,7 +400,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
         case ATT_CHARACTERISTIC_0000FF12_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
 			if (NULL != le_ser_evt_handler)
-				(*le_ser_evt_handler)(APP_EVT_GATT_SER_DATA_RCV, buffer, buffer_size);
+				(*le_ser_evt_handler)(APP_EVT_GATT_DATA_RCV, buffer, buffer_size);
 			test_track_sent(context, buffer_size);
             break;
         default:

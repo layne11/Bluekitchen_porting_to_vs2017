@@ -65,12 +65,13 @@
 #include "btstack.h"
 #include "hxcmod.h"
 #include "mods/mod.h"
+#include "app.h"
 
 // logarithmic volume reduction, samples are divided by 2^x
 // #define VOLUME_REDUCTION 3
 // #undef  HAVE_BTSTACK_STDIN
 
-//#define AVRCP_BROWSING_ENABLED
+#define AVRCP_BROWSING_ENABLED
 
 #define NUM_CHANNELS                2
 #define A2DP_SAMPLE_RATE            44100
@@ -137,6 +138,7 @@ typedef struct {
 } avdtp_media_codec_configuration_sbc_t;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
+btstack_evt_handler_t audio_source_evt_handler = NULL;
 
 // pts:             static const char * device_addr_string = "00:1B:DC:08:0A:A5";
 // mac 2013:        static const char * device_addr_string = "84:38:35:65:d1:15";
@@ -234,13 +236,11 @@ avrcp_play_status_info_t play_info;
 static void a2dp_source_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * event, uint16_t event_size);
 static void avrcp_target_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
 static void avrcp_controller_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
-#ifdef HAVE_BTSTACK_STDIN
-static void stdin_process(char cmd);
-#endif
+
 
 static int a2dp_source_and_avrcp_services_init(void){
 
-    l2cap_init();
+    //l2cap_init();
     // Initialize  A2DP Source.
     a2dp_source_init();
     a2dp_source_register_packet_handler(&a2dp_source_packet_handler);
@@ -257,11 +257,11 @@ static int a2dp_source_and_avrcp_services_init(void){
     avrcp_target_init();
     avrcp_target_register_packet_handler(&avrcp_target_packet_handler);
     // Initialize AVRCP Controller
-    avrcp_controller_init();
-    avrcp_controller_register_packet_handler(&avrcp_controller_packet_handler);
+    /*avrcp_controller_init();
+    avrcp_controller_register_packet_handler(&avrcp_controller_packet_handler);*/
 
     // Initialize SDP, 
-    sdp_init();
+    //sdp_init();
     
     // Create  A2DP Source service record and register it with SDP.
     memset(sdp_a2dp_source_service_buffer, 0, sizeof(sdp_a2dp_source_service_buffer));
@@ -274,21 +274,21 @@ static int a2dp_source_and_avrcp_services_init(void){
 #ifdef AVRCP_BROWSING_ENABLED
     supported_features |= (1 << AVRCP_TARGET_SUPPORTED_FEATURE_BROWSING);
 #endif
-    avrcp_target_create_sdp_record(sdp_avrcp_target_service_buffer, 0x10001, supported_features, NULL, NULL);
+    avrcp_target_create_sdp_record(sdp_avrcp_target_service_buffer, 0x10003, supported_features, NULL, NULL);
     sdp_register_service(sdp_avrcp_target_service_buffer);
 
     // setup AVRCP Controller
-    memset(sdp_avrcp_controller_service_buffer, 0, sizeof(sdp_avrcp_controller_service_buffer));
+    /*memset(sdp_avrcp_controller_service_buffer, 0, sizeof(sdp_avrcp_controller_service_buffer));
     uint16_t controller_supported_features = (1 << AVRCP_CONTROLLER_SUPPORTED_FEATURE_CATEGORY_MONITOR_OR_AMPLIFIER);
     avrcp_controller_create_sdp_record(sdp_avrcp_controller_service_buffer, 0x10002, controller_supported_features, NULL, NULL);
-    sdp_register_service(sdp_avrcp_controller_service_buffer);
+    sdp_register_service(sdp_avrcp_controller_service_buffer);*/
 
     // Set local name with a template Bluetooth address, that will be automatically
     // replaced with a actual address once it is available, i.e. when BTstack boots
     // up and starts talking to a Bluetooth module.
-    gap_set_local_name("A2DP Source 00:00:00:00:00:00");
-    gap_discoverable_control(1);
-    gap_set_class_of_device(0x200408);
+    //gap_set_local_name("A2DP Source 00:00:00:00:00:00");
+    //gap_discoverable_control(1);
+    //gap_set_class_of_device(0x200408);
     
     // Register for HCI events.
     hci_event_callback_registration.callback = &a2dp_source_packet_handler;
@@ -302,7 +302,7 @@ static int a2dp_source_and_avrcp_services_init(void){
     }
     
     // Parse human readable Bluetooth address.
-    sscanf_bd_addr(device_addr_string, device_addr);
+    //sscanf_bd_addr(device_addr_string, device_addr);
 
 #ifdef HAVE_BTSTACK_STDIN
     btstack_stdin_setup(stdin_process);
@@ -314,6 +314,7 @@ static int a2dp_source_and_avrcp_services_init(void){
 static void a2dp_demo_send_media_packet(void){
     int num_bytes_in_frame = btstack_sbc_encoder_sbc_buffer_length();
     int bytes_in_storage = media_tracker.sbc_storage_count;
+	printf("------->send a2dp data\n");
     uint8_t num_frames = bytes_in_storage / num_bytes_in_frame;
     a2dp_source_stream_send_media_payload(media_tracker.a2dp_cid, media_tracker.local_seid, media_tracker.sbc_storage, bytes_in_storage, num_frames, 0);
     media_tracker.sbc_storage_count = 0;
@@ -446,7 +447,8 @@ static void a2dp_source_packet_handler(uint8_t packet_type, uint16_t channel, ui
 
     if (packet_type != HCI_EVENT_PACKET) return;
 
-#ifndef HAVE_BTSTACK_STDIN
+//#ifndef HAVE_BTSTACK_STDIN
+#if 0
     if (hci_event_packet_get_type(packet) == BTSTACK_EVENT_STATE){
         if (btstack_event_state_get_state(packet) != HCI_STATE_WORKING) return;
         printf("Create A2DP Source connection to addr %s.\n", bd_addr_to_str(device_addr));
@@ -714,46 +716,48 @@ static void avrcp_controller_packet_handler(uint8_t packet_type, uint16_t channe
     }  
 }
 
-#ifdef HAVE_BTSTACK_STDIN
-static void show_usage(void){
-    bd_addr_t      iut_address;
-    gap_local_bd_addr(iut_address);
-    printf("\n--- Bluetooth  A2DP Source/AVRCP Target Demo %s ---\n", bd_addr_to_str(iut_address));
-    printf("b      - A2DP Source create connection to addr %s\n", device_addr_string);
-    printf("B      - A2DP Source disconnect\n");
-    printf("c      - AVRCP Target create connection to addr %s\n", device_addr_string);
-    printf("C      - AVRCP Target disconnect\n");
+/*--- Bluetooth  A2DP Source/AVRCP Target Demo ---*/
+/*
+b[addr]- A2DP Source create connection to [addr]
+B      - A2DP Source disconnect
+c[addr]- AVRCP Target create connection to [addr]
+C      - AVRCP Target disconnect
 
-    printf("x      - start streaming sine\n");
-    if (hxcmod_initialized){
-        printf("z      - start streaming '%s'\n", mod_name);
-    }
-    printf("p      - pause streaming\n");
-    printf("w      - reconfigure stream for 44100 Hz\n");
-    printf("e      - reconfigure stream for 48000 Hz\n");
-    printf("t      - volume up\n");
-    printf("T      - volume down\n");
-    printf("v      - absolute volume of 50 percent\n");
+x      - start streaming sine
 
-    printf("\n--- Bluetooth  AVRCP Target Commands %s ---\n", bd_addr_to_str(iut_address));
-    printf("---\n");
-}
+if hxcmod_initialized
+z[mode]- start streaming [mode]
 
-static void stdin_process(char cmd){
+p      - pause streaming
+w      - reconfigure stream for 44100 Hz
+e      - reconfigure stream for 48000 Hz
+t      - volume up
+T      - volume down
+v      - absolute volume of 50 percent
+*/
+static void audio_source_cmd_process(char cmd, void *param){
     uint8_t status = ERROR_CODE_SUCCESS;
     switch (cmd){
         case 'b':
-            status = a2dp_source_establish_stream(device_addr, media_tracker.local_seid, &media_tracker.a2dp_cid);
-            printf("%c - Create A2DP Source connection to addr %s, cid 0x%02x.\n", cmd, bd_addr_to_str(device_addr), media_tracker.a2dp_cid);
-            break;
+		{
+			bd_addr_t device_addr;
+			memcpy(device_addr, param, sizeof(bd_addr_t));
+			status = a2dp_source_establish_stream(device_addr, media_tracker.local_seid, &media_tracker.a2dp_cid);
+			printf("%c - Create A2DP Source connection to addr %s, cid 0x%02x.\n", cmd, bd_addr_to_str(device_addr), media_tracker.a2dp_cid);
+		}
+			break;
         case 'B':
             printf("%c - A2DP Source Disconnect from cid 0x%2x\n", cmd, media_tracker.a2dp_cid);
             status = a2dp_source_disconnect(media_tracker.a2dp_cid);
             break;
         case 'c':
-            printf("%c - Create AVRCP Target connection to addr %s.\n", cmd, bd_addr_to_str(device_addr));
-            status = avrcp_target_connect(device_addr, &media_tracker.avrcp_cid);
-            break;
+		{
+			bd_addr_t device_addr;
+			memcpy(device_addr, param, sizeof(bd_addr_t));
+			printf("%c - Create AVRCP Target connection to addr %s.\n", cmd, bd_addr_to_str(device_addr));
+			status = avrcp_target_connect(device_addr, &media_tracker.avrcp_cid);
+		}
+			break;
         case 'C':
             printf("%c - AVRCP Target disconnect\n", cmd);
             status = avrcp_target_disconnect(media_tracker.avrcp_cid);
@@ -822,25 +826,27 @@ static void stdin_process(char cmd){
             break;
 
         default:
-            show_usage();
-            return;
+			break;
     }
     if (status != ERROR_CODE_SUCCESS){
         printf("Could not perform command \'%c\', status 0x%2x\n", cmd, status);
     }
 }
-#endif
 
-
-int btstack_main(int argc, const char * argv[]);
-int btstack_main(int argc, const char * argv[]){
-    (void)argc;
-    (void)argv;
-    
+void audio_source_cmd_control(char cmd, void *param)
+{
+	audio_source_cmd_process(cmd, param);
+}
+void audio_source_evt_handler_register(btstack_evt_handler_t func)
+{
+	audio_source_evt_handler = func;
+}
+int	app_audio_source_init(void)
+{
     int err = a2dp_source_and_avrcp_services_init();
     if (err) return err;
     // turn on!
-    hci_power_control(HCI_POWER_ON);
+    //hci_power_control(HCI_POWER_ON);
     return 0;
 }
 /* EXAMPLE_END */

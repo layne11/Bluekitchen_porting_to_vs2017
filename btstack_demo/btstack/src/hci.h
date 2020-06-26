@@ -838,12 +838,19 @@ typedef struct {
     uint8_t   le_scanning_enabled;
     uint8_t   le_scanning_active;
 
+	uint8_t   le_ext_scanning_enabled;
+	uint8_t   le_ext_scanning_active;
+
     le_connecting_state_t le_connecting_state;
 
     // buffer for le scan type command - 0xff not set
     uint8_t  le_scan_type;
     uint16_t le_scan_interval;  
     uint16_t le_scan_window;
+
+	uint8_t  le_ext_scan_type;
+	uint16_t le_ext_scan_interval;
+	uint16_t le_ext_scan_window;
 
     // LE Whitelist Management
     uint8_t               le_whitelist_capacity;

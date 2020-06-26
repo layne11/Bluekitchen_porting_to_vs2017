@@ -1018,6 +1018,24 @@ typedef uint8_t sm_key_t[16];
  */
 #define GAP_EVENT_INQUIRY_COMPLETE                            0xE4
 
+ /**
+  * @format 21B1111121BJV
+  * @param advertising_event_type
+  * @param address_type
+  * @param address
+  * @param primary_PHY
+  * @param secondary_PHY
+  * @param advertising_SID
+  * @param tx_power
+  * @param rssi
+  * @param periodic_advertising_interval
+  * @param direct_address_type
+  * @param direct_address
+  * @param data_length
+  * @param data
+  */
+#define GAP_EVENT_EXTENED_ADVERTISING_REPORT				  0xE5
+
 
 // Meta Events, see below for sub events
 #define HCI_EVENT_HSP_META                                 0xE8

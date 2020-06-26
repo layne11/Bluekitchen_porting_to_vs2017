@@ -6,8 +6,17 @@
 #include "btstack_demo.h"
 #include "btstack_demoDlg.h"
 #include "afxdialogex.h"
-#include "app.h"
 #include "PropSheet.h"
+#include "app_audio.h"
+
+//#include <string>
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+#include "app.h"
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,6 +25,24 @@
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 static CListCtrl m_list_dev;
 UINT PropPage_id[6] = { IDD_PROP_HFP, IDD_PROP_A2DP, IDD_PROP_AVRCP, IDD_PROP_SPP,IDD_PROP_GATT, IDD_PROP_HID };
+BOOL is_scaning = FALSE;
+static struct device_info g_devs_list[200];
+uint16_t g_devs_list_count = 0;
+int g_scan_type = 0;
+
+
+
+void InitConsoleWindows()
+{
+	AllocConsole();
+
+#if _MSC_VER <= 1200 //这个是vc6.0
+	freopen("CONOUT$", "w+t", stdout);
+#else //这个是vc2003以上
+	FILE *stream;
+	freopen_s(&stream, "CONOUT$", "wt", stdout);
+#endif // _MSC_VER > 1000
+}
 
 class CAboutDlg : public CDialogEx
 {
@@ -73,6 +100,11 @@ BEGIN_MESSAGE_MAP(CbtstackdemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SCAN_OR_STOP, &CbtstackdemoDlg::OnBnClickedButtonScanOrStop)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_DEV_LIST, &CbtstackdemoDlg::OnClickListDevice)
 	ON_BN_CLICKED(IDC_PROFILE_TEST, &CbtstackdemoDlg::OnBnClickedProfileTest)
+	ON_BN_CLICKED(IDC_BUTTON_CONNECT, &CbtstackdemoDlg::OnBnClickedConn)
+	ON_BN_CLICKED(IDC_BUTTON_DISCONN, &CbtstackdemoDlg::OnBnClickedDisconn)
+	
+	ON_BN_CLICKED(IDC_RADIO_CLASS, &CbtstackdemoDlg::OnBnClickedRadioClass)
+	ON_BN_CLICKED(IDC_RADIO_BLE, &CbtstackdemoDlg::OnBnClickedRadioBle)
 END_MESSAGE_MAP()
 
 
@@ -108,8 +140,9 @@ BOOL CbtstackdemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	AllocConsole();
-	freopen("CONOUT$", "w+t", stdout);
+	//AllocConsole();
+	//freopen("CONOUT$", "w+t", stdout);
+	InitConsoleWindows();
 	printf("test btstack start.....\n");
 	
 	currSelect = -1;
@@ -120,8 +153,12 @@ BOOL CbtstackdemoDlg::OnInitDialog()
 	m_list_dev.InsertColumn(0, _T("No."), LVCFMT_CENTER, 40);
 	m_list_dev.InsertColumn(1, _T("Name"), LVCFMT_CENTER, 300);              //添加列标题！！！！  这里的80,40,90用以设置列的宽度。！！！LVCFMT_LEFT用来设置对齐方式！！！
 	m_list_dev.InsertColumn(2, _T("Mac"), LVCFMT_CENTER, 250);
-	m_list_dev.InsertColumn(3, _T("class"), LVCFMT_CENTER, 150);
+	m_list_dev.InsertColumn(3, _T("type"), LVCFMT_CENTER, 125);
+	//m_list_dev.InsertColumn(3, _T("class"), LVCFMT_CENTER, 130);
 
+	((CButton *)GetDlgItem(IDC_RADIO_CLASS))->SetCheck(TRUE);
+
+	app_audio_init();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -196,9 +233,10 @@ void update_dev_list(int num, struct device_info *dev)
 	CString devName;
 	CString devMac;
 	CString devclass;
-
+	CString devtype;
+	int item_count = m_list_dev.GetItemCount();
 	// get item count
-	for (int i = 0; i < m_list_dev.GetItemCount(); i++) {
+	/*for (int i = 0; i < m_list_dev.GetItemCount(); i++) {
 		CString numGet;
 		CString numInsert;
 
@@ -207,31 +245,73 @@ void update_dev_list(int num, struct device_info *dev)
 
 		if (_ttoi(numGet) == num)
 			return;
+	}*/
+
+	for (int j = 0; j < g_devs_list_count; j++) {
+		if (bd_addr_cmp(dev->bd_addr_t, g_devs_list[j].bd_addr_t) == 0) {
+			devName = dev->dev_name;
+			//devName.Format(_T("%s"), dev->dev_name);
+			m_list_dev.SetItemText(j, 1, devName);
+			return;
+		}
 	}
 
+	num = item_count;
+	memcpy(&g_devs_list[g_devs_list_count], dev, sizeof(struct device_info));
+	g_devs_list_count++;
+
 	numStr.Format(_T("%02d"), num);
-	devName.Format(_T("%s"),dev->dev_name);
+	//devName.Format(_T("%s"),dev->dev_name);
+	devName = dev->dev_name;
 	devMac.Format(_T("%02x:%02x:%02x:%02x:%02x:%02x"), dev->bd_addr_t[0],
 		dev->bd_addr_t[1],
 		dev->bd_addr_t[2],
 		dev->bd_addr_t[3],
 		dev->bd_addr_t[4],
 		dev->bd_addr_t[5]);
-	devclass.Format(_T("%02x:%02x:%02x"), dev->dev_class[0],
+	if (!dev->dev_type)
+		devtype.Format(_T("class"));
+	else
+		devtype.Format(_T("ble"));
+	/*devclass.Format(_T("%02x:%02x:%02x"), dev->dev_class[0],
 		dev->dev_class[1],
-		dev->dev_class[2]);
+		dev->dev_class[2]);*/
 
 	m_list_dev.InsertItem(num, numStr);
 	m_list_dev.SetItemText(num, 1, devName);
 	m_list_dev.SetItemText(num, 2, devMac);
-	m_list_dev.SetItemText(num, 3, devclass);
-
+	m_list_dev.SetItemText(num, 3, devtype);
+	//m_list_dev.SetItemText(num, 3, devclass);
 }
 
 void CbtstackdemoDlg::OnBnClickedButtonScanOrStop()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
+#ifdef APP_TYPE_CENTRAL
+	le_client_btstack_display_scan_resault_regeister(update_dev_list);
+	gap_inquiry_display_result_regeister(update_dev_list);
+	if (is_scaning) {
+		is_scaning = FALSE;
+		GetDlgItem(IDC_BUTTON_SCAN_OR_STOP)->SetWindowText(_T("scan"));
+		if (g_scan_type){
+			le_streamer_client_scan_set(0);
+		} else {
+			app_gap_inquiry_scan_set(0);
+		}
+	}
+	else {
+		is_scaning = TRUE;
+		m_list_dev.DeleteAllItems();
+		g_devs_list_count = 0;
+		memset(&g_devs_list, 0, sizeof(struct device_info) * 200);
+		GetDlgItem(IDC_BUTTON_SCAN_OR_STOP)->SetWindowText(_T("stop"));
+		if (g_scan_type) {
+			le_streamer_client_scan_set(1);
+		} else{
+			app_gap_inquiry_scan_set(1);
+		}
+	}
+#endif
 }
 
 
@@ -260,3 +340,64 @@ void CbtstackdemoDlg::OnBnClickedProfileTest()
 	PropSheetInit(sizeof(PropPage_id) /sizeof(UINT), PropPage_id);
 }
 
+void CbtstackdemoDlg::OnBnClickedConn()
+{
+#ifdef APP_TYPE_CENTRAL
+	// TODO: 在此添加控件通知处理程序代码
+	if (-1 == currSelect)
+		return;
+
+	if (is_scaning) {
+		is_scaning = FALSE;
+		GetDlgItem(IDC_BUTTON_SCAN_OR_STOP)->SetWindowText(_T("scan"));
+		le_streamer_client_scan_set(0);
+		app_gap_inquiry_scan_set(0);
+	}
+
+	if (!g_devs_list[currSelect].dev_type) {
+		//hfp_ag_cmd_control('a',g_devs_list[currSelect].bd_addr_t);
+		//Sleep(200);
+		audio_source_cmd_control('b', g_devs_list[currSelect].bd_addr_t);
+		Sleep(200);
+		audio_source_cmd_control('c', g_devs_list[currSelect].bd_addr_t);
+		//Sleep(200);
+		//spp_client_conn_disconn(1, g_devs_list[currSelect].bd_addr_t);
+	} else {
+		le_client_conn_disconn(1,g_devs_list[currSelect].bd_addr_t, g_devs_list[currSelect].dev_addr_type);
+	}
+#endif
+}
+
+void CbtstackdemoDlg::OnBnClickedDisconn()
+{
+#ifdef APP_TYPE_CENTRAL
+	// TODO: 在此添加控件通知处理程序代码
+		hfp_ag_cmd_control('A', NULL);
+		audio_source_cmd_control('B', NULL);
+		audio_source_cmd_control('C', NULL);
+		spp_client_conn_disconn(0, NULL);
+		le_client_conn_disconn(0, NULL, 0);
+#endif
+
+#ifdef APP_TYPE_PERIPHERAL
+		hfp_hf_cmd_control('A', NULL);
+#endif
+}
+
+void CbtstackdemoDlg::OnBnClickedRadioClass()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	((CButton *)GetDlgItem(IDC_RADIO_CLASS))->SetCheck(TRUE);
+	((CButton *)GetDlgItem(IDC_RADIO_BLE))->SetCheck(FALSE);
+	g_scan_type = 0;
+}
+
+
+void CbtstackdemoDlg::OnBnClickedRadioBle()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	((CButton *)GetDlgItem(IDC_RADIO_CLASS))->SetCheck(FALSE);
+	((CButton *)GetDlgItem(IDC_RADIO_BLE))->SetCheck(TRUE);
+	g_scan_type = 1;
+
+}

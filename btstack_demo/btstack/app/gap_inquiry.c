@@ -56,9 +56,10 @@
 #include <string.h>
 
 #include "btstack.h"
+#include "app.h"
  
-#define MAX_DEVICES 20
-enum DEVICE_STATE { REMOTE_NAME_REQUEST, REMOTE_NAME_INQUIRED, REMOTE_NAME_FETCHED };
+#define MAX_DEVICES 100//20
+enum DEVICE_STATE { REMOTE_NAME_REQUEST, REMOTE_NAME_INQUIRED, REMOTE_NAME_FETCHED, REMOTE_NAME_FETCH_FAIL};
 struct device {
     bd_addr_t          address;
     uint8_t            pageScanRepetitionMode;
@@ -67,15 +68,97 @@ struct device {
 };
 
 #define INQUIRY_INTERVAL 5
-struct device devices[MAX_DEVICES];
-int deviceCount = 0;
+
 
 
 enum STATE {INIT, ACTIVE} ;
-enum STATE state = INIT;
+static enum STATE gap_state = INIT;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
+
+struct device devices[MAX_DEVICES];
+int deviceCount = 0;
+static g_scan_enable = 0;
+static struct device_info gap_inquiry_devs_list[100];
+static uint32_t gap_inquiry_devs_cnt = 0;
+static btstack_display_scan_result_t gap_inquiry_display_result = NULL;
+
+
+// returns 1 if name is found in advertisement
+static int gap_inquiry_recode_dev_info(uint8_t * advertisement_report, uint16_t len)
+{
+	struct device_info m_dev;
+
+	memset(&m_dev, 0, sizeof(struct device_info));
+#if 0
+	printf("hfp ag scan data:\n");
+	for (int j = 0; j < len; j++) {
+		printf("%0x ", advertisement_report[j]);
+	}
+	printf("\n");
+#endif
+
+	gap_event_inquiry_result_get_bd_addr(advertisement_report, m_dev.bd_addr_t);
+	m_dev.dev_type = 0;
+
+	if (gap_event_inquiry_result_get_name_available(advertisement_report)) {
+		int name_len = gap_event_inquiry_result_get_name_len(advertisement_report);
+		memcpy(m_dev.dev_name, gap_event_inquiry_result_get_name(advertisement_report), name_len);
+		m_dev.dev_name[name_len] = '\0';
+		devices[deviceCount].state = REMOTE_NAME_FETCHED;;
+	} else {
+		devices[deviceCount].state = REMOTE_NAME_REQUEST;
+	}
+	//printf("device name:%s\n", m_dev.dev_name);
+
+	for (int i = 0; i < gap_inquiry_devs_cnt; i++) {
+		int m = 0;
+		for (m = 0; m < 6; m++) {
+			if (gap_inquiry_devs_list[i].bd_addr_t[m] != m_dev.bd_addr_t[m])
+				break;
+		}
+		if (6 == m && gap_inquiry_devs_list[i].bd_addr_t[5] == m_dev.bd_addr_t[5])
+			return 1;
+	}
+
+	memcpy(&gap_inquiry_devs_list[gap_inquiry_devs_cnt], &m_dev, sizeof(struct device_info));
+
+	memcpy(&devices[deviceCount].address, &m_dev.bd_addr_t, BD_ADDR_LEN);
+	devices[deviceCount].pageScanRepetitionMode = gap_event_inquiry_result_get_page_scan_repetition_mode(advertisement_report);
+	devices[deviceCount].clockOffset = gap_event_inquiry_result_get_clock_offset(advertisement_report);
+
+	if (NULL != gap_inquiry_display_result)
+		(*gap_inquiry_display_result)(gap_inquiry_devs_cnt, &gap_inquiry_devs_list[gap_inquiry_devs_cnt]);
+	gap_inquiry_devs_cnt++;
+	deviceCount++;
+
+	return 0;
+}
+
+static int gap_inquiry_name_get(uint8_t * packet, uint16_t len)
+{
+	int index = -1;
+	bd_addr_t addr;
+
+	reverse_bd_addr(&packet[3], addr);
+	index = getDeviceIndexForAddress(addr);
+	if (index >= 0) {
+		if (packet[2] == 0) {
+			strcpy(gap_inquiry_devs_list[index].dev_name, &packet[9]);
+
+			printf("Name: '%s'\n", &packet[9]);
+			devices[index].state = REMOTE_NAME_FETCHED;
+		} else {
+			printf("Failed to get name: page timeout\n");
+			//devices[index].state = REMOTE_NAME_FETCHED;
+		}
+	}
+
+	if (NULL != gap_inquiry_display_result)
+		(*gap_inquiry_display_result)(gap_inquiry_devs_cnt, &gap_inquiry_devs_list[index]);
+
+}
 static int getDeviceIndexForAddress( bd_addr_t addr){
     int j;
     for (j=0; j< deviceCount; j++){
@@ -87,8 +170,11 @@ static int getDeviceIndexForAddress( bd_addr_t addr){
 }
 
 static void start_scan(void){
-    printf("Starting inquiry scan..\n");
-    gap_inquiry_start(INQUIRY_INTERVAL);
+    
+	if (g_scan_enable) {
+		printf("Starting inquiry scan..\n");
+		gap_inquiry_start(INQUIRY_INTERVAL);
+	}
 }
 
 static int has_more_remote_name_requests(void){
@@ -139,7 +225,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
 
     uint8_t event = hci_event_packet_get_type(packet);
 
-    switch(state){ 
+    switch(gap_state){
         /* @text In INIT, an inquiry  scan is started, and the application transits to 
          * ACTIVE state.
          */
@@ -147,8 +233,8 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
             switch(event){
                 case BTSTACK_EVENT_STATE:
                     if (btstack_event_state_get_state(packet) == HCI_STATE_WORKING){
-                        start_scan();
-                        state = ACTIVE;
+                        //start_scan();
+						gap_state = ACTIVE;
                     }
                     break;
                 default:
@@ -169,6 +255,9 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
             switch(event){
 
                 case GAP_EVENT_INQUIRY_RESULT:
+					if (gap_inquiry_devs_cnt >= MAX_DEVICES) break;
+					gap_inquiry_recode_dev_info(packet, size);
+					/*
                     if (deviceCount >= MAX_DEVICES) break;  // already full
                     gap_event_inquiry_result_get_bd_addr(packet, addr);
                     index = getDeviceIndexForAddress(addr);
@@ -196,7 +285,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
                         devices[deviceCount].state = REMOTE_NAME_REQUEST;
                     }
                     printf("\n");
-                    deviceCount++;
+                    deviceCount++;*/
                     break;
 
                 case GAP_EVENT_INQUIRY_COMPLETE:
@@ -209,6 +298,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
                     break;
 
                 case HCI_EVENT_REMOTE_NAME_REQUEST_COMPLETE:
+					gap_inquiry_name_get(packet, size);
                     reverse_bd_addr(&packet[3], addr);
                     index = getDeviceIndexForAddress(addr);
                     if (index >= 0) {
@@ -216,6 +306,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
                             printf("Name: '%s'\n", &packet[9]);
                             devices[index].state = REMOTE_NAME_FETCHED;
                         } else {
+							devices[index].state = REMOTE_NAME_FETCH_FAIL;
                             printf("Failed to get name: page timeout\n");
                         }
                     }
@@ -232,23 +323,40 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
     }
 }
 
+/* LISTING_START(MainConfiguration): Setup HFP Audio Gateway */
+int app_gap_inquiry_scan_set(int scan)
+{
+	int ret = 0;
+	gap_inquiry_devs_cnt = 0;
+	deviceCount = 0;
+	memset(&devices, 0, sizeof(struct device) * MAX_DEVICES);
+	memset(&gap_inquiry_devs_list, 0, sizeof(struct device_info) * 100);
+	g_scan_enable = scan;
+	if (scan) {
+		//state = TC_W4_SCAN_RESULT;
+		printf("Start scanning...\n");
+		ret = gap_inquiry_start(INQUIRY_INTERVAL);
+	}
+	else {
+		//state = TC_IDLE;
+		printf("Stop scanning!\n");
+		ret = gap_inquiry_stop();
+	}
+
+	return ret;
+}
+
+void gap_inquiry_display_result_regeister(btstack_display_scan_result_t func)
+{
+	gap_inquiry_display_result = func;
+}
+
 /* @text For more details on discovering remote devices, please see
  * Section on [GAP](../profiles/#sec:GAPdiscoverRemoteDevices).
  */
-
-
-/* @section Main Application Setup
- *
- * @text Listing MainConfiguration shows main application code.
- * It registers the HCI packet handler and starts the Bluetooth stack.
- */
-
 /* LISTING_START(MainConfiguration): Setup packet handler for GAP inquiry */
-int btstack_main(int argc, const char * argv[]);
-int btstack_main(int argc, const char * argv[]) {
-    (void)argc;
-    (void)argv;
-
+int app_gap_inquiry_init(void)
+{
     // enabled EIR
     hci_set_inquiry_mode(INQUIRY_MODE_RSSI_AND_EIR);
 

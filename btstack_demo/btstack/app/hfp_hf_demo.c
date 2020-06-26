@@ -64,7 +64,7 @@
 #include "app.h"
 
 uint8_t hfp_service_buffer[150];
-const uint8_t   rfcomm_channel_nr = 1;
+const static uint8_t   rfcomm_channel_nr = 1;
 const char hfp_hf_service_name[] = "HFP HF Demo";
 btstack_evt_handler_t hfp_hf_evt_handler = NULL;
 
@@ -75,11 +75,6 @@ static const char * device_addr_string = "54:E4:3A:26:A2:39";
 
 static bd_addr_t device_addr;
 
-#ifdef HAVE_BTSTACK_STDIN
-// 80:BE:05:D5:28:48
-// prototypes
-static void show_usage(void);
-#endif
 static hci_con_handle_t acl_handle = HCI_CON_HANDLE_INVALID;
 static hci_con_handle_t sco_handle = HCI_CON_HANDLE_INVALID;
 #ifdef ENABLE_HFP_WIDE_BAND_SPEECH
@@ -430,19 +425,20 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
                             hfp_subevent_service_level_connection_established_get_bd_addr(event, device_addr);
                             printf("Service level connection established %s.\n\n", bd_addr_to_str(device_addr));
 							if (NULL != hfp_hf_evt_handler)
-								(*hfp_hf_evt_handler)(APP_EVT_HFP_HF_CONN, event, event_size);
+								(*hfp_hf_evt_handler)(APP_EVT_HFP_CONN, event, event_size);
 							break;
                         case HFP_SUBEVENT_SERVICE_LEVEL_CONNECTION_RELEASED:
                             acl_handle = HCI_CON_HANDLE_INVALID;
                             printf("Service level connection released.\n\n");
 							if (NULL != hfp_hf_evt_handler)
-								(*hfp_hf_evt_handler)(APP_EVT_HFP_HF_DISCONN, event, event_size);
+								(*hfp_hf_evt_handler)(APP_EVT_HFP_DISCONN, event, event_size);
                             break;
                         case HFP_SUBEVENT_AUDIO_CONNECTION_ESTABLISHED:
                             if (hfp_subevent_audio_connection_established_get_status(event)){
                                 printf("Audio connection establishment failed with status %u\n", hfp_subevent_audio_connection_established_get_status(event));
                             } else {
                                 sco_handle = hfp_subevent_audio_connection_established_get_handle(event);
+								sco_set_hf_conn_handle(sco_handle);
                                 printf("Audio connection established with SCO handle 0x%04x.\n", sco_handle);
                                 negotiated_codec = hfp_subevent_audio_connection_established_get_negotiated_codec(event);
                                 switch (negotiated_codec){
@@ -459,15 +455,16 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
                                 sco_demo_set_codec(negotiated_codec);
                                 hci_request_sco_can_send_now_event();
 								if (NULL != hfp_hf_evt_handler)
-									(*hfp_hf_evt_handler)(APP_EVT_HFP_HF_CALLING, event, event_size);
+									(*hfp_hf_evt_handler)(APP_EVT_HFP_CALLING_DEV, event, event_size);
                             }
                             break;
                         case HFP_SUBEVENT_AUDIO_CONNECTION_RELEASED:
                             sco_handle = HCI_CON_HANDLE_INVALID;
+							sco_set_hf_conn_handle(sco_handle);
                             printf("Audio connection released\n");
                             sco_demo_close();
 							if (NULL != hfp_hf_evt_handler)
-								(*hfp_hf_evt_handler)(APP_EVT_HFP_HF_CONN, event, event_size);
+								(*hfp_hf_evt_handler)(APP_EVT_HFP_CONN, event, event_size);
                             break;
                         case HFP_SUBEVENT_COMPLETE:
                             switch (cmd){
@@ -502,7 +499,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t * even
                         case HFP_SUBEVENT_RING:
                             printf("** Ring **\n");
 							if (NULL != hfp_hf_evt_handler)
-								(*hfp_hf_evt_handler)(APP_EVT_HFP_HF_INCOMING_CALL, event, event_size);
+								(*hfp_hf_evt_handler)(APP_EVT_HFP_INCOMING_CALL, event, event_size);
                             break;
                         case HFP_SUBEVENT_NUMBER_FOR_VOICE_TAG:
                             printf("Phone number for voice tag: %s\n", 
@@ -601,13 +598,8 @@ void hfp_hf_evt_handler_register(btstack_evt_handler_t func)
  */
 
 /* LISTING_START(MainConfiguration): Setup HFP Hands-Free unit */
-//int btstack_main(int argc, const char * argv[]);
-//int btstack_main(int argc, const char * argv[]){
 int app_hfp_hf_init(void)
 {
-    //(void)argc;
-    //(void)argv;
-
     sco_demo_init();
 
     //gap_discoverable_control(1);
@@ -656,5 +648,4 @@ int app_hfp_hf_init(void)
     //hci_power_control(HCI_POWER_ON);
     return 0;
 }
-/* LISTING_END */
-/* EXAMPLE_END */
+

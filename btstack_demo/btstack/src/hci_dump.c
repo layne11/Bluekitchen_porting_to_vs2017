@@ -276,7 +276,7 @@ void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t 
     }
 #endif
 
-    if (dump_format == HCI_DUMP_STDOUT){
+    if (dump_format == HCI_DUMP_STDOUT){//HCI_DUMP_PACKETLOGGER
         printf_timestamp();
         printf_packet(packet_type, in, packet, len);
         return;        

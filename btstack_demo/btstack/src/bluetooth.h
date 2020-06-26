@@ -294,6 +294,7 @@ typedef enum {
 #define HCI_CMD_PAYLOAD_SIZE       255
 
 #define LE_ADVERTISING_DATA_SIZE    31
+#define LE_EXTENED_ADVERTISING_DATA_SIZE    (255-28)
 
 // Link Policy Settings
 #define LM_LINK_POLICY_DISABLE_ALL_LM_MODES  0
@@ -729,6 +730,8 @@ typedef enum {
 // array of advertisements, not handled by event accessor generator
 #define HCI_SUBEVENT_LE_DIRECT_ADVERTISING_REPORT          0x0B
 
+// array of advertisements, not handled by event accessor generator
+#define HCI_SUBEVENT_LE_EXTENDED_ADVERTISING_REPORT        0x0D
 /** 
  * L2CAP Layer
  */

@@ -76,6 +76,10 @@ void sco_demo_receive(uint8_t * packet, uint16_t size);
  */
 void sco_demo_close(void);
 
+/**
+ * @app layer set sco conn handle
+ */
+void sco_set_hf_conn_handle(hci_con_handle_t sco_handle);
 #if defined __cplusplus
 }
 #endif

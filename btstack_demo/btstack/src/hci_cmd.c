@@ -955,13 +955,34 @@ const hci_cmd_t hci_le_set_scan_parameters = {
 OPCODE(OGF_LE_CONTROLLER, 0x0b), "12211"
 // return: status
 };
-
+/**
+ * @param own_address_type (public (0), random (1))
+ * @param scanning_filter_policy (any (0), only whitelist (1))
+ * @param scanning_PHYs (bit 0,LE 1M PHY;bit 2,LE Coded PHY)
+ * @param le_scan_type (passive (0), active (1))
+ * @param le_scan_interval ([0x0004,0x4000], unit: 0.625 msec)
+ * @param le_scan_window   ([0x0004,0x4000], unit: 0.625 msec)
+ */
+const hci_cmd_t hci_le_set_ext_scan_parameters = {
+OPCODE(OGF_LE_CONTROLLER, 0x41), "111122"
+// return: status
+};
 /**
  * @param le_scan_enable  (disabled (0), enabled (1))
  * @param filter_duplices (disabled (0), enabled (1))
  */
 const hci_cmd_t hci_le_set_scan_enable = {
 OPCODE(OGF_LE_CONTROLLER, 0x0c), "11"
+// return: status
+};
+/**
+ * @param le_scan_enable  (disabled (0), enabled (1))
+ * @param filter_duplices (disabled (0), enabled (1))
+ * @param Duration (0x01, Time = 1 * 10 ms)
+ * @param Period (0x01, Time = 1 * 1.28 sec)
+ */
+const hci_cmd_t hci_le_set_ext_scan_enable = {
+OPCODE(OGF_LE_CONTROLLER, 0x42), "1122"
 // return: status
 };
 

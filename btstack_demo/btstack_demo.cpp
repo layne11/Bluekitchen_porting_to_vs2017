@@ -112,9 +112,9 @@ BOOL CbtstackdemoApp::InitInstance()
 UINT btstack_demo_thread(LPVOID pParam)
 {
 	int ret = 1;
-	TRACE("---->lp_btstack_thread: start [%d]\n", ret);
+	printf("---->btstack_thread: start [%d]\n", ret);
 
 	main(0, NULL);
-	TRACE("---->lp_btstack_thread: end\n");
+	printf("---->btstack_thread: end\n");
 	return 0;
 }

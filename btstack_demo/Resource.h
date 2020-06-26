@@ -74,6 +74,9 @@
 #define IDC_SPP_EDIT_RCV                1060
 #define IDC_GATT_STATIC_RCV             1061
 #define IDC_SPP_STATIC_RCV              1062
+#define IDC_RADIO_BLE                   1066
+#define IDC_RADIO_CLASS                 1067
+#define IDC_STATIC_SCAN_TYPE            1068
 
 // Next default values for new objects
 // 
@@ -81,7 +84,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        136
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_CONTROL_VALUE         1069
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -51,6 +51,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <Windows.h>
 
 #include "btstack.h"
 #include "app.h"
@@ -80,9 +81,14 @@ static bd_addr_type_t le_streamer_addr_type;
 static hci_con_handle_t connection_handle;
 
 // On the GATT Server, RX Characteristic is used for receive data via Write, and TX Characteristic is used to send data via Notifications
-static uint8_t le_streamer_service_uuid[16]           = { 0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
-static uint8_t le_streamer_characteristic_rx_uuid[16] = { 0x00, 0x00, 0xFF, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
-static uint8_t le_streamer_characteristic_tx_uuid[16] = { 0x00, 0x00, 0xFF, 0x12, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
+//static uint8_t le_streamer_service_uuid[16]           = { 0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
+//static uint8_t le_streamer_characteristic_rx_uuid[16] = { 0x00, 0x00, 0xFF, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
+//static uint8_t le_streamer_characteristic_tx_uuid[16] = { 0x00, 0x00, 0xFF, 0x12, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
+
+static uint8_t le_streamer_service_uuid[16]           = {0x65,0x78,0x63,0x65,0x6c,0x70,0x6f,0x69,0x6e,0x74,0x2e,0x63,0x6f,0x82,0x00,0x00};
+static uint8_t le_streamer_characteristic_rx_uuid[16] = {0x65,0x78,0x63,0x65,0x6c,0x70,0x6f,0x69,0x6e,0x74,0x2e,0x63,0x6f,0x82,0x00,0x01};
+static uint8_t le_streamer_characteristic_tx_uuid[16] = {0x65,0x78,0x63,0x65,0x6c,0x70,0x6f,0x69,0x6e,0x74,0x2e,0x63,0x6f,0x82,0x00,0x02};
+
 
 static gatt_client_service_t le_streamer_service;
 static gatt_client_characteristic_t le_streamer_characteristic_rx;
@@ -94,6 +100,9 @@ static int listener_registered;
 static gc_state_t state = TC_OFF;
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
+static int gatt_cli_send_enable = 0;
+btstack_evt_handler_t le_cli_evt_handler = NULL;
+hci_con_handle_t g_le_client_handle;
 /*
  * @section Track throughput
  * @text We calculate the throughput by setting a start time and measuring the amount of 
@@ -123,7 +132,29 @@ typedef struct {
     uint32_t test_data_start;
 } le_streamer_connection_t;
 
+typedef struct {
+	uint8_t event;
+	uint8_t event_len;
+	uint16_t advertising_event_type;
+	uint8_t address_type;
+	bd_addr_t address;
+	uint8_t primary_PHY;
+	uint8_t secondary_PHY;
+	uint8_t advertising_SID;
+	uint8_t tx_power;
+	uint8_t rssi;
+	uint16_t periodic_advertising_interval;
+	uint8_t direct_address_type;
+	bd_addr_t direct_address;
+	uint8_t data_length;
+	uint8_t *data;
+} le_extended_adv_data_t;
+
 static le_streamer_connection_t le_streamer_connection;
+
+static struct device_info le_scan_devs_list[100];
+static uint32_t le_scan_devs_cnt = 0;
+static btstack_display_scan_result_t le_btstack_display_scan_result = NULL;
 
 static void test_reset(le_streamer_connection_t * context){
     context->test_data_start = btstack_run_loop_get_time_ms();
@@ -165,38 +196,98 @@ static void streamer(le_streamer_connection_t * context){
         test_track_data(&le_streamer_connection, context->test_data_len);
     }
 
+	gatt_cli_send_enable = 0;
     // request again
     gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
 }
 
+// returns 1 if name is found in advertisement
+static int advertisement_report_contains_name(const char * name, uint8_t * advertisement_report) {
+	// get advertisement from report event
+	const uint8_t * adv_data = gap_event_advertising_report_get_data(advertisement_report);
+	uint16_t        adv_len = gap_event_advertising_report_get_data_length(advertisement_report);
+	int             name_len = strlen(name);
+
+	// iterate over advertisement data
+	ad_context_t context;
+	for (ad_iterator_init(&context, adv_len, adv_data); ad_iterator_has_more(&context); ad_iterator_next(&context)) {
+		uint8_t data_type = ad_iterator_get_data_type(&context);
+		uint8_t data_size = ad_iterator_get_data_len(&context);
+		const uint8_t * data = ad_iterator_get_data(&context);
+		int i;
+		switch (data_type) {
+		case BLUETOOTH_DATA_TYPE_SHORTENED_LOCAL_NAME:
+		case BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME:
+			// compare common prefix
+			for (i = 0; i < data_size && i < name_len; i++) {
+				if (data[i] != name[i]) break;
+			}
+			// prefix match
+			return 1;
+		default:
+			break;
+		}
+	}
+	return 0;
+}
 
 // returns 1 if name is found in advertisement
-static int advertisement_report_contains_name(const char * name, uint8_t * advertisement_report){
-    // get advertisement from report event
-    const uint8_t * adv_data = gap_event_advertising_report_get_data(advertisement_report);
+static int le_cli_recode_scan_report_dev_info(uint8_t * advertisement_report)
+{
+	const uint8_t * adv_data = gap_event_advertising_report_get_data(advertisement_report);
     uint16_t        adv_len  = gap_event_advertising_report_get_data_length(advertisement_report);
-    int             name_len = strlen(name);
 
-    // iterate over advertisement data
+	struct device_info m_dev;
     ad_context_t context;
+
+	memset(&m_dev, 0, sizeof(struct device_info));
+#if 0
+	printf("scan data:\n");
+	for (int j = 0; j < 12; j++) {
+		printf("%0x ", advertisement_report[j]);
+	}
+	printf("\n");
+	for (int j = 0; j < adv_len; j++) {
+		printf("%0x ", adv_data[j]);
+	}
+	printf("\n");
+#endif
     for (ad_iterator_init(&context, adv_len, adv_data) ; ad_iterator_has_more(&context) ; ad_iterator_next(&context)){
         uint8_t data_type    = ad_iterator_get_data_type(&context);
         uint8_t data_size    = ad_iterator_get_data_len(&context);
         const uint8_t * data = ad_iterator_get_data(&context);
-        int i;
+        //int i;
         switch (data_type){
             case BLUETOOTH_DATA_TYPE_SHORTENED_LOCAL_NAME:
             case BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME:
-                // compare common prefix
-                for (i=0; i<data_size && i<name_len;i++){
-                    if (data[i] != name[i]) break;
-                }
-                // prefix match
-                return 1;
+				if (data_size >= DEV_NAME_MAX)
+					data_size = DEV_NAME_MAX - 1;
+					
+				memcpy(m_dev.dev_name, data, data_size);
+				m_dev.dev_name[data_size] = '\0';
+				break;
             default:
                 break;
         }
     }
+
+	gap_event_advertising_report_get_address(advertisement_report, m_dev.bd_addr_t);
+	m_dev.dev_addr_type = (bd_addr_type_t)gap_event_advertising_report_get_address_type(advertisement_report);
+	m_dev.dev_type = 1;
+	//printf("new device name:%s\n", m_dev.dev_name);
+
+	/*check addr is not repeat*/
+	for (int i = 0; i < le_scan_devs_cnt; i++) {
+		if (0 == memcmp(le_scan_devs_list[i].bd_addr_t, m_dev.bd_addr_t, BD_ADDR_LEN))
+			return 1;
+	}
+
+	memcpy(&le_scan_devs_list[le_scan_devs_cnt], &m_dev, sizeof(struct device_info));
+
+	if(NULL != le_btstack_display_scan_result)
+		(*le_btstack_display_scan_result)(le_scan_devs_cnt, &le_scan_devs_list[le_scan_devs_cnt]);
+	le_scan_devs_cnt++;
+
     return 0;
 }
 
@@ -309,12 +400,21 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
         case TC_W4_TEST_DATA:
             switch(hci_event_packet_get_type(packet)){
                 case GATT_EVENT_NOTIFICATION:
-                    test_track_data(&le_streamer_connection, gatt_event_notification_get_value_length(packet));
-                    break;
+				{
+					uint8_t *buffer = gatt_event_notification_get_value(packet);
+					uint16_t buffer_size = gatt_event_notification_get_value_length(packet);
+					if (NULL != le_cli_evt_handler)
+						(*le_cli_evt_handler)(APP_EVT_GATT_DATA_RCV, buffer, buffer_size);
+
+					test_track_data(&le_streamer_connection, gatt_event_notification_get_value_length(packet));
+
+				}
+					break;
                 case GATT_EVENT_QUERY_COMPLETE:
                     break;
                 case GATT_EVENT_CAN_WRITE_WITHOUT_RESPONSE:
-                    streamer(&le_streamer_connection);
+					gatt_cli_send_enable = 1;
+                    //streamer(&le_streamer_connection);
                     break;
                 default:
                     printf("Unknown packet type %x\n", hci_event_packet_get_type(packet));
@@ -329,20 +429,6 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     
 }
 
-// Either connect to remote specified on command line or start scan for device with "LE Streamer" in advertisement
-static void le_streamer_client_start(void){
-    if (cmdline_addr_found){
-        printf("Connect to %s\n", bd_addr_to_str(cmdline_addr));
-        state = TC_W4_CONNECT;
-        gap_connect(cmdline_addr, 0);
-    } else {
-        printf("Start scanning!\n");
-        state = TC_W4_SCAN_RESULT;
-        gap_set_scan_parameters(0,0x0030, 0x0030);
-        gap_start_scan();
-    }
-}
-
 static void hci_event_handler(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size){
     UNUSED(channel);
     UNUSED(size);
@@ -355,13 +441,15 @@ static void hci_event_handler(uint8_t packet_type, uint16_t channel, uint8_t *pa
         case BTSTACK_EVENT_STATE:
             // BTstack activated, get started
             if (btstack_event_state_get_state(packet) == HCI_STATE_WORKING) {
-                le_streamer_client_start();
+                //le_streamer_client_start();
             } else {
                 state = TC_OFF;
             }
             break;
         case GAP_EVENT_ADVERTISING_REPORT:
             if (state != TC_W4_SCAN_RESULT) return;
+			le_cli_recode_scan_report_dev_info(packet);
+#if 0
             // check name in advertisement
             if (!advertisement_report_contains_name("LE Streamer", packet)) return;
             // store address and type
@@ -372,7 +460,19 @@ static void hci_event_handler(uint8_t packet_type, uint16_t channel, uint8_t *pa
             gap_stop_scan();
             printf("Stop scan. Connect to device with addr %s.\n", bd_addr_to_str(le_streamer_addr));
             gap_connect(le_streamer_addr,le_streamer_addr_type);
+#endif
             break;
+		case GAP_EVENT_EXTENED_ADVERTISING_REPORT:
+		{
+#if 1
+			printf("ext scan data:\n");
+			for (int j = 2; j < packet[1]; j++) {
+				printf("%0x ", packet[j]);
+			}
+			printf("\n");
+#endif
+		}
+		break;
         case HCI_EVENT_LE_META:
             // wait for connection complete
             if (hci_event_le_meta_get_subevent_code(packet) !=  HCI_SUBEVENT_LE_CONNECTION_COMPLETE) break;
@@ -401,44 +501,64 @@ static void hci_event_handler(uint8_t packet_type, uint16_t channel, uint8_t *pa
             }
             printf("Disconnected %s\n", bd_addr_to_str(le_streamer_addr));
             if (state == TC_OFF) break;
-            le_streamer_client_start();
+            //le_streamer_client_start();
             break;
         default:
             break;
     }
 }
 
-#ifdef HAVE_BTSTACK_STDIN
-static void usage(const char *name){
-    fprintf(stderr, "Usage: %s [-a|--address aa:bb:cc:dd:ee:ff]\n", name);
-    fprintf(stderr, "If no argument is provided, LE Streamer Client will start scanning and connect to the first device named 'LE Streamer'.\n");
-    fprintf(stderr, "To connect to a specific device use argument [-a].\n\n");
+void le_streamer_client_scan_set(int scan)
+{
+	le_scan_devs_cnt = 0;
+	memset(&le_scan_devs_list, 0, sizeof(struct device_info) * 100);
+	if (scan) {
+		state = TC_W4_SCAN_RESULT;
+		printf("Start scanning!\n");
+		gap_set_scan_parameters(0, 0x0030, 0x0030);
+		gap_start_scan();
+
+		//it can be use if bluetooth is v5.0 or later
+		/*gap_set_ext_scan_parameters(0, 0x0030, 0x0030);
+		gap_start_ext_scan();*/
+	}
+	else {
+		state = TC_IDLE;
+		printf("Stop scanning!\n");
+		gap_stop_scan();
+	}
 }
-#endif
 
-//int btstack_main(int argc, const char * argv[]);
-int app_le_streamer_client_init(void ){
+int le_streamer_client_send_data(uint8_t * data, uint16_t len)
+{
+	if (!gatt_cli_send_enable)
+		return 0;
+	streamer(data, len);
+	return len;
+}
 
-#ifdef HAVE_BTSTACK_STDIN
-    int arg = 1;
-    cmdline_addr_found = 0;
-    
-    /*while (arg < argc) {
-        if(!strcmp(argv[arg], "-a") || !strcmp(argv[arg], "--address")){
-            arg++;
-            cmdline_addr_found = sscanf_bd_addr(argv[arg], cmdline_addr);
-            arg++;
-            if (!cmdline_addr_found) exit(1);
-            continue;
-        }
-        usage(argv[0]);
-        return 0;
-    }*/
-#else
-    //(void)argc;
-    //(void)argv;
-#endif
-    l2cap_init();
+void le_client_evt_handler_register(btstack_evt_handler_t func)
+{
+	le_cli_evt_handler = func;
+}
+
+void le_client_btstack_display_scan_resault_regeister(btstack_display_scan_result_t func)
+{
+	le_btstack_display_scan_result = func;
+}
+uint8_t le_client_conn_disconn(int conn, bd_addr_t addr, int type)
+{
+	uint8_t ret = 0;
+	if (conn) {
+		ret = gap_connect(addr, type);
+	} else {
+		ret = gap_disconnect(g_le_client_handle);
+	}
+	return ret;
+}
+int app_le_streamer_client_init(void )
+{
+    //l2cap_init();
 
     sm_init();
     sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);

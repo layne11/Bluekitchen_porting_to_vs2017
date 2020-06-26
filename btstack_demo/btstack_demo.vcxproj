@@ -94,7 +94,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\btstack\3rd-party\bluedroid\encoder\include;.\btstack\3rd-party\bluedroid\decoder\include;.\btstack\3rd-party\hxcmod-player\mods;.\btstack\3rd-party\hxcmod_player;.\btstack\3rd-party\md5;.\btstack\3rd-party\micro-ecc;.\btstack\3rd-party\segger-rtt;.\btstack\3rd-party\tinydir;.\btstack\3rd-party\yxml;.\btstack\app;.\btstack\chipset\intel;.\btstack\chipset\csr;.\btstack\platform\windows;.\btstack\platform\posix;.\btstack\platform\posix\include;.\btstack\src;.\btstack\src\classic;.\btstack\src\ble;.\btstack\src\ble\gatt-service;.\btstack\port\windows-winusb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\btstack\3rd-party\bluedroid\encoder\include;.\btstack\3rd-party\bluedroid\decoder\include;.\btstack\3rd-party\hxcmod-player\mods;.\btstack\3rd-party\hxcmod-player;.\btstack\3rd-party\md5;.\btstack\3rd-party\micro-ecc;.\btstack\3rd-party\segger-rtt;.\btstack\3rd-party\tinydir;.\btstack\3rd-party\yxml;.\btstack\app;.\btstack\chipset\intel;.\btstack\chipset\csr;.\btstack\platform\windows;.\btstack\platform\posix;.\btstack\platform\posix\include;.\btstack\src;.\btstack\src\classic;.\btstack\src\ble;.\btstack\src\ble\gatt-service;.\btstack\port\windows-winusb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,18 +135,20 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\btstack\3rd-party\bluedroid\encoder\include;.\btstack\3rd-party\bluedroid\decoder\include;.\btstack\3rd-party\hxcmod-player\mods;.\btstack\3rd-party\hxcmod-player;.\btstack\3rd-party\md5;.\btstack\3rd-party\micro-ecc;.\btstack\3rd-party\segger-rtt;.\btstack\3rd-party\tinydir;.\btstack\3rd-party\yxml;.\btstack\app;.\btstack\chipset\intel;.\btstack\chipset\csr;.\btstack\platform\windows;.\btstack\platform\posix;.\btstack\platform\posix\include;.\btstack\src;.\btstack\src\classic;.\btstack\src\ble;.\btstack\src\ble\gatt-service;.\btstack\port\windows-winusb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>winusb.lib;setupapi.lib;Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -186,6 +188,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="app_audio.h" />
     <ClInclude Include="btstack\3rd-party\md5\md5.h" />
     <ClInclude Include="btstack\3rd-party\segger-rtt\SEGGER_RTT.h" />
     <ClInclude Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Conf.h" />
@@ -302,6 +305,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="app_audio.cpp" />
     <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\alloc.c" />
     <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitalloc-sbc.c" />
     <ClCompile Include="btstack\3rd-party\bluedroid\decoder\srce\bitalloc.c" />
@@ -336,12 +340,16 @@
     <ClCompile Include="btstack\3rd-party\segger-rtt\SEGGER_RTT_Syscalls_SES.c" />
     <ClCompile Include="btstack\3rd-party\yxml\yxml.c" />
     <ClCompile Include="btstack\app\a2dp_sink_demo.c" />
+    <ClCompile Include="btstack\app\a2dp_source_demo.c" />
     <ClCompile Include="btstack\app\app.c" />
+    <ClCompile Include="btstack\app\gap_inquiry.c" />
+    <ClCompile Include="btstack\app\hfp_ag_demo.c" />
     <ClCompile Include="btstack\app\hfp_hf_demo.c" />
     <ClCompile Include="btstack\app\le_streamer.c" />
     <ClCompile Include="btstack\app\le_streamer_client.c" />
     <ClCompile Include="btstack\app\sco_demo_util.c" />
     <ClCompile Include="btstack\app\spp_streamer.c" />
+    <ClCompile Include="btstack\app\spp_streamer_client.c" />
     <ClCompile Include="btstack\chipset\intel\btstack_chipset_intel_firmware.c" />
     <ClCompile Include="btstack\platform\posix\btstack_audio_portaudio.c" />
     <ClCompile Include="btstack\platform\posix\btstack_link_key_db_fs.c" />

@@ -47,8 +47,7 @@ protected:
 	//afx_msg void OnHidBnClickedBtnPropB1();
 };
 
-class CPropSheet :
-	public CPropertySheet
+class CPropSheet : public CPropertySheet
 {
 public:
 	CPropSheet(UINT num, UINT *id, UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);

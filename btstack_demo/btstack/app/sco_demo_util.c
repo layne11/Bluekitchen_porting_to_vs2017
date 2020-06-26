@@ -52,6 +52,7 @@
 #include "classic/btstack_sbc.h"
 #include "classic/hfp.h"
 #include "classic/hfp_msbc.h"
+#include "app.h"
 
 #define HAVE_POSIX_FILE_IO
 #ifdef HAVE_POSIX_FILE_IO
@@ -98,6 +99,13 @@
 #define CVSD_PA_PREBUFFER_BYTES (SCO_CVSD_PA_PREBUFFER_MS * CVSD_SAMPLE_RATE/1000 * BYTES_PER_FRAME)
 #define MSBC_PA_PREBUFFER_BYTES (SCO_MSBC_PA_PREBUFFER_MS * MSBC_SAMPLE_RATE/1000 * BYTES_PER_FRAME)
 
+
+#define SCO_SEND_DATA_TIMEOUT_MS	50
+static btstack_timer_source_t sco_data_send_timer;
+audio_operation *sco_data_opt = NULL;
+static hci_con_handle_t g_sco_handle = HCI_CON_HANDLE_INVALID;
+static void sco_send_data_timer_start(void);
+static void sco_send_data_timer_stop(void);
 // output
 
 #if (SCO_DEMO_MODE == SCO_DEMO_MODE_SINE) || (SCO_DEMO_MODE == SCO_DEMO_MODE_MICROPHONE)
@@ -190,9 +198,9 @@ static void sco_demo_msbc_fill_sine_audio_frame(void){
 
 #if (SCO_DEMO_MODE == SCO_DEMO_MODE_SINE) || (SCO_DEMO_MODE == SCO_DEMO_MODE_MICROPHONE)
 
-static void playback_callback(int16_t * buffer, uint16_t num_samples){
-
-    uint32_t prebuffer_bytes;
+static void playback_callback(int16_t * buffer, uint16_t num_samples)
+{
+/*    uint32_t prebuffer_bytes;
     switch (negotiated_codec){
         case HFP_CODEC_MSBC:
             prebuffer_bytes = MSBC_PA_PREBUFFER_BYTES;
@@ -247,7 +255,7 @@ static void playback_callback(int16_t * buffer, uint16_t num_samples){
         memset(buffer, 0, num_samples * BYTES_PER_FRAME);
 #endif
         audio_output_paused = 1;
-    }
+    }*/
 }
 
 #ifdef USE_AUDIO_INPUT
@@ -264,7 +272,8 @@ static int audio_initialize(int sample_rate){
     // init buffers
     memset(audio_output_ring_buffer_storage, 0, sizeof(audio_output_ring_buffer_storage));
     btstack_ring_buffer_init(&audio_output_ring_buffer, audio_output_ring_buffer_storage, sizeof(audio_output_ring_buffer_storage));
-
+	if (sco_data_opt)
+		sco_data_opt->aui_ioctl(AUDIO_INSTANCE_HFP, 1);
     // config and setup audio playback
     const btstack_audio_sink_t * audio_sink = btstack_audio_sink_get_instance();
     if (!audio_sink) return 0;
@@ -324,16 +333,17 @@ static void handle_pcm_data(int16_t * data, int num_samples, int num_channels, i
     // printf("handle_pcm_data num samples %u, sample rate %d\n", num_samples, num_channels);
 
     // samples in callback in host endianess, ready for playback
-    btstack_ring_buffer_write(&audio_output_ring_buffer, (uint8_t *)data, num_samples*num_channels*2);
-
+    //btstack_ring_buffer_write(&audio_output_ring_buffer, (uint8_t *)data, num_samples*num_channels*2);
+	if(sco_data_opt)
+		sco_data_opt->auo_write(AUDIO_INSTANCE_HFP, data, num_samples * num_channels * 2);
 #ifdef SCO_WAV_FILENAME
-    if (!num_samples_to_write) return;
+    /*if (!num_samples_to_write) return;
     num_samples = btstack_min(num_samples, num_samples_to_write);
     num_samples_to_write -= num_samples;
     wav_writer_write_int16(num_samples, data);
     if (num_samples_to_write == 0){
         wav_writer_close();
-    }
+    }*/
 #endif /* SCO_WAV_FILENAME */
 
 #endif /* Demo mode sine or microphone */
@@ -345,6 +355,10 @@ static void handle_pcm_data(int16_t * data, int num_samples, int num_channels, i
 
 static void sco_demo_init_mSBC(void){
     printf("SCO Demo: Init mSBC\n");
+	if (sco_data_opt) {
+		sco_data_opt->aui_open(AUDIO_INSTANCE_HFP, 16000, 16, 1);
+		sco_data_opt->auo_open(AUDIO_INSTANCE_HFP, 16000, 16, 1);
+	}
 
     btstack_sbc_decoder_init(&decoder_state, SBC_MODE_mSBC, &handle_pcm_data, NULL);    
     hfp_msbc_init();
@@ -386,6 +400,10 @@ static void sco_demo_receive_mSBC(uint8_t * packet, uint16_t size){
 
 static void sco_demo_init_CVSD(void){
     printf("SCO Demo: Init CVSD\n");
+	if (sco_data_opt) {
+		sco_data_opt->aui_open(AUDIO_INSTANCE_HFP, 8000, 16, 1);
+		sco_data_opt->auo_open(AUDIO_INSTANCE_HFP, 8000, 16, 1);
+	}
 
     btstack_cvsd_plc_init(&cvsd_plc_state);
 
@@ -405,7 +423,7 @@ static void sco_demo_receive_CVSD(uint8_t * packet, uint16_t size){
         printf("sco_demo_receive_CVSD: SCO packet larger than local output buffer - dropping data.\n");
         return;
     }
-
+	printf("sco_demo_receive_CVSD: %d\n", size);
     const int audio_bytes_read = size - 3;
     const int num_samples = audio_bytes_read / BYTES_PER_FRAME;
 
@@ -417,15 +435,19 @@ static void sco_demo_receive_CVSD(uint8_t * packet, uint16_t size){
     }
 
     btstack_cvsd_plc_process_data(&cvsd_plc_state, audio_frame_in, num_samples, audio_frame_out);
-
+	
+	const int samples_to_write = btstack_min(num_samples, num_samples_to_write);
+	printf("sco_demo_write: %d,%d\n", samples_to_write, num_samples_to_write);
+	if (sco_data_opt)
+		sco_data_opt->auo_write(AUDIO_INSTANCE_HFP, audio_frame_out, samples_to_write * 2);
 #ifdef SCO_WAV_FILENAME
     // Samples in CVSD SCO packet are in little endian, ready for wav files (take shortcut)
-    const int samples_to_write = btstack_min(num_samples, num_samples_to_write);
+    /*const int samples_to_write = btstack_min(num_samples, num_samples_to_write);
     wav_writer_write_le_int16(samples_to_write, audio_frame_out);
     num_samples_to_write -= samples_to_write;
     if (num_samples_to_write == 0){
         wav_writer_close();
-    }
+    }*/
 #endif
 
     btstack_ring_buffer_write(&audio_output_ring_buffer, (uint8_t *)audio_frame_out, audio_bytes_read);
@@ -458,6 +480,11 @@ void sco_demo_close(void){
     audio_terminate();
 
 #endif
+	if (sco_data_opt) {
+		sco_data_opt->aui_close(AUDIO_INSTANCE_HFP);
+		sco_data_opt->auo_close(AUDIO_INSTANCE_HFP);
+	}
+
 }
 
 void sco_demo_set_codec(uint8_t codec){
@@ -506,6 +533,151 @@ void sco_report(void){
     printf("SCO: sent %u, received %u\n", count_sent, count_received);
 }
 
+#if 1
+void sco_demo_send(hci_con_handle_t sco_handle) {
+
+	if (sco_handle == HCI_CON_HANDLE_INVALID) return;
+	if (NULL == sco_data_opt) return;
+
+	int sco_packet_length = hci_get_sco_packet_length();
+	int sco_payload_length = sco_packet_length - 3;
+
+	hci_reserve_packet_buffer();
+	uint8_t * sco_packet = hci_get_outgoing_packet_buffer();
+
+#if SCO_DEMO_MODE == SCO_DEMO_MODE_MICROPHONE
+
+	//if (btstack_audio_source_get_instance()) {
+	if(1){
+		if (negotiated_codec == HFP_CODEC_MSBC) {
+			// MSBC
+			if (sco_data_opt->aui_read(AUDIO_INSTANCE_HFP, 0, NULL, 0) < MSBC_PA_PREBUFFER_BYTES)
+				sco_send_data_timer_start();
+			if (audio_input_paused) {
+
+				if (sco_data_opt->aui_read(AUDIO_INSTANCE_HFP, 0, NULL, 0) >= MSBC_PA_PREBUFFER_BYTES) {
+					audio_input_paused = 0;
+				}
+				/*if (btstack_ring_buffer_bytes_available(&audio_input_ring_buffer) >= MSBC_PA_PREBUFFER_BYTES) {
+					// resume sending
+					audio_input_paused = 0;
+				}*/
+			}
+
+			if (!audio_input_paused) {
+				int num_samples = hfp_msbc_num_audio_samples_per_frame();
+				if (num_samples > MAX_NUM_MSBC_SAMPLES) return; // assert
+				//if (hfp_msbc_can_encode_audio_frame_now() && btstack_ring_buffer_bytes_available(&audio_input_ring_buffer) >= (unsigned int)(num_samples * BYTES_PER_FRAME)) {
+				if (hfp_msbc_can_encode_audio_frame_now()){
+					int16_t sample_buffer[MAX_NUM_MSBC_SAMPLES];
+					uint32_t bytes_read;
+					bytes_read = sco_data_opt->aui_read(AUDIO_INSTANCE_HFP, 1, sample_buffer, num_samples * BYTES_PER_FRAME);
+					//btstack_ring_buffer_read(&audio_input_ring_buffer, (uint8_t*)sample_buffer, num_samples * BYTES_PER_FRAME, &bytes_read);
+					//printf("--->bytes_read%d\n", bytes_read);
+					hfp_msbc_encode_audio_frame(sample_buffer);
+					num_audio_frames++;
+				}
+				if (hfp_msbc_num_bytes_in_stream() < sco_payload_length) {
+					log_error("mSBC stream should not be empty.");
+				}
+			}
+
+			if (audio_input_paused || hfp_msbc_num_bytes_in_stream() < sco_payload_length) {
+				memset(sco_packet + 3, 0, sco_payload_length);
+				audio_input_paused = 1;
+			}
+			else {
+				hfp_msbc_read_from_stream(sco_packet + 3, sco_payload_length);
+#ifdef HAVE_POSIX_FILE_IO
+				if (msbc_file_out){
+					// log outgoing mSBC data for testing
+					fwrite(sco_packet + 3, sco_payload_length, 1, msbc_file_out);
+				}
+#endif
+			}
+
+		}
+		else {
+			// CVSD
+			if (NULL == sco_data_opt)
+				return;
+
+			if (sco_data_opt->aui_read(AUDIO_INSTANCE_HFP, 0, NULL, 0) < CVSD_PA_PREBUFFER_BYTES)
+				sco_send_data_timer_start();
+			log_debug("send: bytes avail %u, free %u", btstack_ring_buffer_bytes_available(&audio_input_ring_buffer), btstack_ring_buffer_bytes_free(&audio_input_ring_buffer));
+			// fill with silence while paused
+			int bytes_to_copy = sco_payload_length;
+			if (audio_input_paused) {
+				if (NULL == sco_data_opt)
+					return;
+				if (sco_data_opt->aui_read(AUDIO_INSTANCE_HFP, 0, NULL, 0) >= CVSD_PA_PREBUFFER_BYTES) {
+					audio_input_paused = 0;
+				}
+				/*if (btstack_ring_buffer_bytes_available(&audio_input_ring_buffer) >= CVSD_PA_PREBUFFER_BYTES) {
+					// resume sending
+					audio_input_paused = 0;
+				}*/
+			}
+
+			// get data from ringbuffer
+			uint16_t pos = 0;
+			uint8_t * sample_data = &sco_packet[3];
+			if (!audio_input_paused) {
+				uint32_t bytes_read = 0;
+				if(sco_data_opt)
+					bytes_read = sco_data_opt->aui_read(AUDIO_INSTANCE_HFP, 1, sample_data, bytes_to_copy);
+				//printf("--->bytes_read%d\n", bytes_read);
+				//btstack_ring_buffer_read(&audio_input_ring_buffer, sample_data, bytes_to_copy, &bytes_read);
+				// flip 16 on big endian systems
+				// @note We don't use (uint16_t *) casts since all sample addresses are odd which causes crahses on some systems
+				if (btstack_is_big_endian()) {
+					unsigned int i;
+					for (i = 0; i < bytes_read; i += 2) {
+						uint8_t tmp = sample_data[i * 2];
+						sample_data[i * 2] = sample_data[i * 2 + 1];
+						sample_data[i * 2 + 1] = tmp;
+					}
+				}
+				bytes_to_copy -= bytes_read;
+				pos += bytes_read;
+			}
+
+			// fill with 0 if not enough
+			if (bytes_to_copy) {
+				memset(sample_data + pos, 0, bytes_to_copy);
+				audio_input_paused = 1;
+			}
+		}
+	}
+	else {
+		// just send '0's
+		memset(sco_packet + 3, 0, sco_payload_length);
+	}
+#endif
+
+#if SCO_DEMO_MODE == SCO_DEMO_MODE_COUNTER
+	int j;
+	for (j = 0; j < sco_payload_length; j++) {
+		sco_packet[3 + j] = phase++;
+	}
+#endif
+
+	// set handle + flags
+	little_endian_store_16(sco_packet, 0, sco_handle);
+	// set len
+	sco_packet[2] = sco_payload_length;
+	// finally send packet 
+	hci_send_sco_packet_buffer(sco_packet_length);
+
+	// request another send event
+	hci_request_sco_can_send_now_event();
+
+	count_sent++;
+#if SCO_DEMO_MODE != SCO_DEMO_MODE_55
+	if ((count_sent % SCO_REPORT_PERIOD) == 0) sco_report();
+#endif
+}
+#else
 void sco_demo_send(hci_con_handle_t sco_handle){
 
     if (sco_handle == HCI_CON_HANDLE_INVALID) return;
@@ -674,7 +846,7 @@ void sco_demo_send(hci_con_handle_t sco_handle){
     if ((count_sent % SCO_REPORT_PERIOD) == 0) sco_report();
 #endif
 }
-
+#endif
 /**
  * @brief Process received data
  */
@@ -781,4 +953,35 @@ void sco_demo_receive(uint8_t * packet, uint16_t size){
         }
 #endif
     }
+}
+
+//avdtp_configuration_timeout_handler
+static void sco_send_data_timeout_handler(btstack_timer_source_t * timer)
+{
+	printf("-->sco_send_data_timeout_handler\n");
+	sco_demo_send(g_sco_handle);
+}
+
+static void sco_send_data_timer_start(void)
+{
+	btstack_run_loop_remove_timer(&sco_data_send_timer);
+	btstack_run_loop_set_timer_handler(&sco_data_send_timer, sco_send_data_timeout_handler);
+	//btstack_run_loop_set_timer_context(&sco_data_send_timer, connection);
+	btstack_run_loop_set_timer(&sco_data_send_timer, SCO_SEND_DATA_TIMEOUT_MS);
+	btstack_run_loop_add_timer(&sco_data_send_timer);
+}
+
+static void sco_send_data_timer_stop(void)
+{
+	btstack_run_loop_remove_timer(&sco_data_send_timer);
+}
+
+void sco_set_hf_conn_handle(hci_con_handle_t sco_handle)
+{
+	g_sco_handle = sco_handle;
+}
+
+void sco_data_out_int_operation_regeister(audio_operation *opt)
+{
+	sco_data_opt = opt;
 }

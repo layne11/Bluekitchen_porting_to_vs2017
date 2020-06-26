@@ -199,6 +199,8 @@ extern const hci_cmd_t hci_le_set_phy;
 extern const hci_cmd_t hci_le_set_random_address;
 extern const hci_cmd_t hci_le_set_scan_enable;
 extern const hci_cmd_t hci_le_set_scan_parameters;
+extern const hci_cmd_t hci_le_set_ext_scan_enable;
+extern const hci_cmd_t hci_le_set_ext_scan_parameters;
 extern const hci_cmd_t hci_le_set_scan_response_data;
 extern const hci_cmd_t hci_le_start_encryption;
 extern const hci_cmd_t hci_le_test_end;

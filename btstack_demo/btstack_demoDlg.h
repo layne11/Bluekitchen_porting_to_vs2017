@@ -39,6 +39,9 @@ public:
 	afx_msg void OnBnClickedButtonScanOrStop();
 	afx_msg void OnClickListDevice(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedProfileTest();
+	afx_msg void OnBnClickedConn();
+	afx_msg void OnBnClickedDisconn();
+	afx_msg void OnBnClickedRadioClass();
+	afx_msg void OnBnClickedRadioBle();
 };
 extern int main(int argc, const char * argv[]);
-extern int get_prop_id_index(UINT id);

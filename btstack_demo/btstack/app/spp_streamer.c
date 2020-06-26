@@ -241,7 +241,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                         test_reset();
                         rfcomm_request_can_send_now_event(rfcomm_cid);
 						if (NULL != spp_ser_evt_handler)
-							(*spp_ser_evt_handler)(APP_EVT_SPP_SER_CONN, packet, size);
+							(*spp_ser_evt_handler)(APP_EVT_SPP_CONN, packet, size);
                    }
 					break;
 
@@ -258,7 +258,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     gap_discoverable_control(1);
                     gap_connectable_control(1);
 					if (NULL != spp_ser_evt_handler)
-						(*spp_ser_evt_handler)(APP_EVT_SPP_SER_DISCONN, packet, size);
+						(*spp_ser_evt_handler)(APP_EVT_SPP_DISCONN, packet, size);
                     break;
 
                 default:
@@ -269,7 +269,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
         case RFCOMM_DATA_PACKET:
 			printf("receive spp data\n");
 			if(NULL != spp_ser_evt_handler)
-				(*spp_ser_evt_handler)(APP_EVT_SPP_SER_DATA_RCV,packet, size);
+				(*spp_ser_evt_handler)(APP_EVT_SPP_DATA_RCV,packet, size);
             test_track_transferred(size);
 #if 0
             printf("RCV: '");

@@ -141,12 +141,18 @@ static void intel_firmware_done(int result){
 	 app_spp_streamer_init();
 #endif
 
-
+#ifdef APP_HFP_AG
+	 app_gap_inquiry_init();
+	 app_hfp_ag_init();
+#endif
+#ifdef APP_AUDIO_SOURCE
+	 app_audio_source_init();
+#endif
 #ifdef APP_LE_STREAMER_CLIENT
 	 app_le_streamer_client_init();
 #endif
 #ifdef APP_SPP_STREAMER_CLIENT
-	 //app_spp_streamer_client_init();
+	 app_spp_streamer_client_init();
 #endif
 
 	hci_power_control(HCI_POWER_ON);

@@ -1071,6 +1071,13 @@ void le_handle_advertisement_report(uint8_t *packet, uint16_t size){
     offset += 1;
 
     int i;
+#if 0
+	printf("scan data:\n");
+	for (int j = 0; j < size; j++) {
+		printf("%02x ", packet[j]);
+	}
+	printf("\n");
+#endif
     // log_info("HCI: handle adv report with num reports: %d", num_reports);
     uint8_t event[12 + LE_ADVERTISING_DATA_SIZE]; // use upper bound to avoid var size automatic var
     for (i=0; i<num_reports && offset < size;i++){
@@ -1094,6 +1101,29 @@ void le_handle_advertisement_report(uint8_t *packet, uint16_t size){
         offset += data_length + 1; // rssi
         hci_emit_event(event, pos, 1);
     }
+}
+
+void le_handle_extened_advertisement_report(uint8_t *packet, uint16_t size)
+{
+	int offset = 3;
+	int num_reports = packet[offset++];
+	int event[HCI_EVENT_PAYLOAD_SIZE];
+
+	for (int i = 0; i < num_reports && offset < size; i++) {
+		// sanity checks on data_length:
+		uint8_t data_length = packet[offset+23];
+		if (data_length > LE_EXTENED_ADVERTISING_DATA_SIZE) return;
+		if (offset + 23 + data_length + 1 > size)    return;
+		// setup event
+		uint8_t event_size = 24 + data_length;
+		int pos = 0;
+		event[pos++] = GAP_EVENT_EXTENED_ADVERTISING_REPORT;
+		event[pos++] = event_size;
+		memcpy(&event[pos], &packet[offset], 24+ data_length);
+		offset += (24 + data_length);
+		pos += (24 + data_length);
+		hci_emit_event(event, pos, 1);
+	}
 }
 #endif
 #endif
@@ -2497,6 +2527,15 @@ static void event_handler(uint8_t *packet, int size){
                         }
                     }
                     break;
+#ifdef ENABLE_LE_CENTRAL
+				case HCI_SUBEVENT_LE_EXTENDED_ADVERTISING_REPORT:
+					{
+					// log_info("advertising extened report received");
+						if (!hci_stack->le_ext_scanning_enabled) break;
+						le_handle_extened_advertisement_report(packet, size);
+					}
+					break;
+#endif
                 default:
                     break;
             }
@@ -2717,7 +2756,9 @@ static void hci_state_reset(void){
 #endif
 #ifdef ENABLE_LE_CENTRAL
     hci_stack->le_scanning_active  = 0;
-    hci_stack->le_scan_type = 0xff; 
+    hci_stack->le_scan_type = 0xff;
+	hci_stack->le_ext_scanning_active = 0;
+	hci_stack->le_ext_scan_type = 0xff;
     hci_stack->le_connecting_state = LE_CONNECTING_IDLE;
     hci_stack->le_whitelist = 0;
     hci_stack->le_whitelist_capacity = 0;
@@ -3335,13 +3376,28 @@ static void hci_run(void){
             hci_send_cmd(&hci_le_set_scan_enable, hci_stack->le_scanning_enabled, 0);
             return;
         }
-        if (hci_stack->le_scan_type != 0xff){
-            // defaults: active scanning, accept all advertisement packets
-            int scan_type = hci_stack->le_scan_type;
-            hci_stack->le_scan_type = 0xff;
-            hci_send_cmd(&hci_le_set_scan_parameters, scan_type, hci_stack->le_scan_interval, hci_stack->le_scan_window, hci_stack->le_own_addr_type, 0);
-            return;
-        }
+
+		if ((hci_stack->le_ext_scanning_enabled != hci_stack->le_ext_scanning_active)) {
+			hci_stack->le_ext_scanning_active = hci_stack->le_ext_scanning_enabled;
+			hci_send_cmd(&hci_le_set_ext_scan_enable, hci_stack->le_ext_scanning_enabled, 0, 0x0030, 0x0030);
+			return;
+		}
+
+		if (hci_stack->le_scan_type != 0xff) {
+			// defaults: active scanning, accept all advertisement packets
+			int scan_type = hci_stack->le_scan_type;
+			hci_stack->le_scan_type = 0xff;
+			hci_send_cmd(&hci_le_set_scan_parameters, scan_type, hci_stack->le_scan_interval, hci_stack->le_scan_window, hci_stack->le_own_addr_type, 0);
+			return;
+		}
+
+		if (hci_stack->le_ext_scan_type != 0xff) {
+			// defaults: active scanning, accept all advertisement packets
+			int scan_type = hci_stack->le_ext_scan_type;
+			hci_stack->le_ext_scan_type = 0xff;
+			hci_send_cmd(&hci_le_set_ext_scan_parameters, hci_stack->le_own_addr_type, 0x00, 0x01, scan_type, hci_stack->le_ext_scan_interval, hci_stack->le_ext_scan_window);
+			return;
+		}
 #endif
 #ifdef ENABLE_LE_PERIPHERAL
         // le advertisement control
@@ -4428,9 +4484,14 @@ void gap_start_scan(void){
     hci_stack->le_scanning_enabled = 1;
     hci_run();
 }
+void gap_start_ext_scan(void) {
+	hci_stack->le_ext_scanning_enabled = 1;
+	hci_run();
+}
 
 void gap_stop_scan(void){
-    hci_stack->le_scanning_enabled = 0;
+	hci_stack->le_scanning_enabled = 0;
+    hci_stack->le_ext_scanning_enabled = 0;
     hci_run();
 }
 
@@ -4439,6 +4500,12 @@ void gap_set_scan_parameters(uint8_t scan_type, uint16_t scan_interval, uint16_t
     hci_stack->le_scan_interval = scan_interval;
     hci_stack->le_scan_window   = scan_window;
     hci_run();
+}
+void gap_set_ext_scan_parameters(uint8_t scan_type, uint16_t scan_interval, uint16_t scan_window) {
+	hci_stack->le_ext_scan_type = scan_type;
+	hci_stack->le_ext_scan_interval = scan_interval;
+	hci_stack->le_ext_scan_window = scan_window;
+	hci_run();
 }
 
 uint8_t gap_connect(bd_addr_t addr, bd_addr_type_t addr_type){

@@ -56,8 +56,9 @@
 #include <inttypes.h>
  
 #include "btstack.h"
+#include "app.h"
 
-#define RFCOMM_SERVER_CHANNEL 1
+#define RFCOMM_SERVER_CHANNEL 2
 
 #define NUM_ROWS 25
 #define NUM_COLS 40
@@ -81,12 +82,14 @@ typedef enum {
     SENDING,
     DONE
 } state_t;
-
+static uint8_t  spp_service_buffer[150];
 static uint8_t   test_data[NUM_ROWS * NUM_COLS];
 static uint16_t  spp_test_data_len;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
+btstack_evt_handler_t spp_cli_evt_handler = NULL;
+static int g_spp_cli_send_data_enable = 0;
 static bd_addr_t peer_addr;
 static state_t state;
 
@@ -95,6 +98,7 @@ static uint16_t  rfcomm_mtu;
 static uint16_t  rfcomm_cid = 0;
 // static uint32_t  data_to_send =  DATA_VOLUME;
 
+#define INQUIRY_INTERVAL 5
 /**
  * RFCOMM can make use for ERTM. Due to the need to re-transmit packets,
  * a large buffer is needed to still get high throughput
@@ -126,20 +130,6 @@ static void rfcomm_ertm_released_handler(uint16_t ertm_id){
 }
 #endif
 
-/** 
- * Find remote peer by COD
- */
-#define INQUIRY_INTERVAL 5
-static void start_scan(void){
-    printf("Starting inquiry scan..\n");
-    state = W4_PEER_COD;
-    gap_inquiry_start(INQUIRY_INTERVAL);
-}
-static void stop_scan(void){
-    printf("Stopping inquiry scan..\n");
-    state = W4_SCAN_COMPLETE;
-    gap_inquiry_stop();
-}
 /*
  * @section Track throughput
  * @text We calculate the throughput by setting a start time and measuring the amount of 
@@ -173,23 +163,44 @@ static void test_track_transferred(int bytes_sent){
 }
 /* LISTING_END(tracking): Tracking throughput */
 
-#if (TEST_MODE & TEST_MODE_SEND)
-static void spp_create_test_data(void){
-    int x,y;
-    for (y=0;y<NUM_ROWS;y++){
-        for (x=0;x<NUM_COLS-2;x++){
-            test_data[y*NUM_COLS+x] = '0' + (x % 10);
-        }
-        test_data[y*NUM_COLS+NUM_COLS-2] = '\n';
-        test_data[y*NUM_COLS+NUM_COLS-1] = '\r';
-    }
+#if 1
+static void spp_send_packet(uint8_t * data, uint16_t len)
+{
+	if (len > spp_test_data_len)
+		len = spp_test_data_len;
+	//rfcomm_send(rfcomm_cid, (uint8_t*) test_data, spp_test_data_len);
+	memcpy(test_data, data, len);
+	rfcomm_send(rfcomm_cid, (uint8_t*)test_data, len);
+	test_track_transferred(spp_test_data_len);
+
+	g_spp_cli_send_data_enable = 0;
+	rfcomm_request_can_send_now_event(rfcomm_cid);
 }
-static void spp_send_packet(void){
-    rfcomm_send(rfcomm_cid, (uint8_t*) test_data, spp_test_data_len);
+#else
+static void spp_send_packet(uint8_t * data, uint16_t len){
+
+	if (len > spp_test_data_len)
+		len = spp_test_data_len;
+	//rfcomm_send(rfcomm_cid, (uint8_t*) test_data, spp_test_data_len);
+	memcpy(test_data, data, len);
+    rfcomm_send(rfcomm_cid, (uint8_t*) test_data, len);
     test_track_transferred(spp_test_data_len);
+	g_spp_cli_send_data_enable = 0;
     rfcomm_request_can_send_now_event(rfcomm_cid);
 }
 #endif
+
+static void start_scan(void)
+{
+	printf("Starting inquiry scan..\n");
+	gap_inquiry_start(INQUIRY_INTERVAL);
+}
+
+static void stop_scan(void)
+{
+	printf("Stop inquiry scan..\n");
+	gap_inquiry_stop();
+}
 
 /* 
  * @section Packet Handler
@@ -210,11 +221,11 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 
                 case BTSTACK_EVENT_STATE:
                     if (btstack_event_state_get_state(packet) != HCI_STATE_WORKING) return;
-                    start_scan();
+                    //start_scan();
                     break;
 
                 case GAP_EVENT_INQUIRY_RESULT:
-                    if (state != W4_PEER_COD) break;
+                    /*if (state != W4_PEER_COD) break;
                     class_of_device = gap_event_inquiry_result_get_class_of_device(packet);
                     gap_event_inquiry_result_get_bd_addr(packet, event_addr);
                     if (class_of_device == TEST_COD){
@@ -223,11 +234,11 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                         stop_scan();
                     } else {
                         printf("Device found: %s with COD: 0x%06x\n", bd_addr_to_str(event_addr), (int) class_of_device);
-                    }                        
+                    }*/          
                     break;
                     
                 case GAP_EVENT_INQUIRY_COMPLETE:
-                    switch (state){
+                    /*switch (state){
                         case W4_PEER_COD:                        
                             printf("Inquiry complete\n");
                             printf("Peer not found, starting scan again\n");
@@ -242,7 +253,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                             break;
                     }
                     if (state == W4_PEER_COD){
-                    }
+                    }*/
                     break;
 
                 case HCI_EVENT_PIN_CODE_REQUEST:
@@ -281,36 +292,28 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                         gap_discoverable_control(0);
                         gap_connectable_control(0);
 
-#if (TEST_MODE & TEST_MODE_SEND)
-                        // configure test data
-                        spp_test_data_len = rfcomm_mtu;
-                        if (spp_test_data_len > sizeof(test_data)){
-                            spp_test_data_len = sizeof(test_data);
-                        }
-                        spp_create_test_data();
-
-                        // start sending
-                        rfcomm_request_can_send_now_event(rfcomm_cid);
-#endif
+						spp_test_data_len = rfcomm_mtu;
+						if (spp_test_data_len > sizeof(test_data)) {
+							spp_test_data_len = sizeof(test_data);
+						}
+						rfcomm_request_can_send_now_event(rfcomm_cid);
                     }
 					break;
 
-#if (TEST_MODE & TEST_MODE_SEND)
                 case RFCOMM_EVENT_CAN_SEND_NOW:
-                    spp_send_packet();
+					printf("RFCOMM channel can send now\n");
+					g_spp_cli_send_data_enable = 1;
+                    //spp_send_packet();
                     break;
-#endif
 
                 case RFCOMM_EVENT_CHANNEL_CLOSED:
                     printf("RFCOMM channel closed\n");
                     rfcomm_cid = 0;
-
+					g_spp_cli_send_data_enable = 0;
                     // re-enable page/inquiry scan again
                     gap_discoverable_control(1);
                     gap_connectable_control(1);
                     break;
-
-
 
                 default:
                     break;
@@ -318,8 +321,10 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             break;
                         
         case RFCOMM_DATA_PACKET:
-            test_track_transferred(size);
-            
+			printf("receive spp data\n");
+			if (NULL != spp_cli_evt_handler)
+				(*spp_cli_evt_handler)(APP_EVT_SPP_DATA_RCV, packet, size);
+			test_track_transferred(size);           
 #if 0
             printf("RCV: '");
             for (i=0;i<size;i++){
@@ -334,6 +339,29 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 	}
 }
 
+int spp_streamer_client_send_data(uint8_t * data, uint16_t len)
+{
+	if (!g_spp_cli_send_data_enable)
+		return 0;
+	spp_send_packet(data, len);
+	return len;
+}
+
+void spp_client_evt_handler_register(btstack_evt_handler_t func)
+{
+	spp_cli_evt_handler = func;
+}
+
+uint8_t spp_client_conn_disconn(int conn, bd_addr_t addr)
+{
+	uint8_t ret = 0;
+	if (conn) {
+		ret = rfcomm_create_channel(packet_handler, addr, RFCOMM_SERVER_CHANNEL, NULL);
+	} else {
+		rfcomm_disconnect(rfcomm_cid);
+	}
+	return ret;
+}
 /*
  * @section Main Application Setup
  *
@@ -342,14 +370,11 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 
 
 /* LISTING_START(MainConfiguration): Init L2CAP RFCOMM SDO SM ATT Server and start heartbeat timer */
-int btstack_main(int argc, const char * argv[]);
-int btstack_main(int argc, const char * argv[]){
-    UNUSED(argc);
-    (void)argv;
+int app_spp_streamer_client_init(void)
+{
+    //l2cap_init();
 
-    l2cap_init();
-
-    rfcomm_init();
+    //rfcomm_init();
     rfcomm_register_service(packet_handler, RFCOMM_SERVER_CHANNEL, 0xffff);
 
 #ifdef ENABLE_L2CAP_ENHANCED_RETRANSMISSION_MODE_FOR_RFCOMM
@@ -362,10 +387,17 @@ int btstack_main(int argc, const char * argv[]){
     hci_add_event_handler(&hci_event_callback_registration);
 
     // init SDP
+
+	memset(spp_service_buffer, 0, sizeof(spp_service_buffer));
+	//spp_create_sdp_record(spp_service_buffer, 0x10001, RFCOMM_SERVER_CHANNEL, "SPP Streamer");
+	spp_create_sdp_record(spp_service_buffer, 0x10002, RFCOMM_SERVER_CHANNEL, "SPP Client");
+	sdp_register_service(spp_service_buffer);
+	// printf("SDP service record size: %u\n", de_get_len(spp_service_buffer));
+
     gap_ssp_set_io_capability(SSP_IO_CAPABILITY_DISPLAY_YES_NO);
 
     // turn on!
-	hci_power_control(HCI_POWER_ON);
+	//hci_power_control(HCI_POWER_ON);
 	    
     return 0;
 }

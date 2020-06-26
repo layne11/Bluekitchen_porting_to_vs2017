@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <string>
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -16,34 +17,34 @@ CPropSheet *pSheet = NULL;
 UINT *pPropPageId = NULL;
 UINT pPropPageIdlen = 0;
 /*
-	//HFP HF EVENT
-	APP_EVT_HFP_HF_CONN,
-	APP_EVT_HFP_HF_DISCONN,
-	APP_EVT_HFP_HF_INCOMING_CALL,
-	APP_EVT_HFP_HF_OUTGOING_CALL,
-	APP_EVT_HFP_HF_CALLING,
-	APP_EVT_HFP_HF_CALLING_PHONE,
+	//HFP EVENT
+	APP_EVT_HFP_CONN,
+	APP_EVT_HFP_DISCONN,
+	APP_EVT_HFP_INCOMING_CALL,
+	APP_EVT_HFP_OUTGOING_CALL,
+	APP_EVT_HFP_CALLING,
+	APP_EVT_HFP_CALLING_PHONE,
 
-	//A2DP SINK EVENT
-	APP_EVT_A2DP_SINK_CONN,
-	APP_EVT_A2DP_SINK_DISCONN,
+	//A2DP EVENT
+	APP_EVT_A2DP_CONN,
+	APP_EVT_A2DP_DISCONN,
 
-	//AVRCP CT EVENT
-	APP_EVT_AVRCP_CT_CONN,
-	APP_EVT_AVRCP_CT_DISCONN,
-	APP_EVT_AVRCP_CT_STOP,
-	APP_EVT_AVRCP_CT_PLAY,
-	APP_EVT_AVRCP_CT_PAUSE,
+	//AVRCP EVENT
+	APP_EVT_AVRCP_CONN,
+	APP_EVT_AVRCP_DISCONN,
+	APP_EVT_AVRCP_STOP,
+	APP_EVT_AVRCP_PLAY,
+	APP_EVT_AVRCP_PAUSE,
 
-	//GATT SERVER EVENT
-	APP_EVT_GATT_SER_CONN,
-	APP_EVT_GATT_SER_DISCONN,
-	APP_EVT_GATT_SER_DATA_RCV,
+	//GATT EVENT
+	APP_EVT_GATT_CONN,
+	APP_EVT_GATT_DISCONN,
+	APP_EVT_GATT_DATA_RCV,
 
-	//SPP SERVER EVENT
-	APP_EVT_SPP_SER_CONN,
-	APP_EVT_SPP_SER_DISCONN,
-	APP_EVT_SPP_SER_DATA_RCV,
+	//SPP EVENT
+	APP_EVT_SPP_CONN,
+	APP_EVT_SPP_DISCONN,
+	APP_EVT_SPP_DATA_RCV,
 */
 const CString stack_display_evt_str_map[] = {
 	//HFP
@@ -85,11 +86,13 @@ void string_to_str(char * c, CString s) {
 	}
 	c[i] = '\0';
 }
+/* if use Unicode
 void str_to_wchar_t_str(char * src, uint16_t slen, wchar_t *dst, uint16_t dlen)
 {
 	long lLen = MultiByteToWideChar(CP_ACP, 0, (char *)src, slen, dst, dlen);
 	dst[lLen] = L'\0';
 }
+*/
 CProp *get_pclass_by_prop_pageid(UINT id)
 {
 	int i;
@@ -122,17 +125,17 @@ UINT get_prop_id_by_type(uint8_t type)
 uint8_t get_type_by_event(uint16_t evt)
 {
 
-		if (evt >= APP_EVT_HFP_HF_CONN && evt <= APP_EVT_HFP_HF_CALLING_PHONE) {
+		if (evt >= APP_EVT_HFP_CONN && evt < APP_EVT_A2DP_CONN) {
 			return STACK_EVENT_TYPE_HFP;
-		}else if (evt >= APP_EVT_A2DP_SINK_CONN && evt <= APP_EVT_A2DP_SINK_DISCONN) {
+		}else if (evt >= APP_EVT_A2DP_CONN && evt < APP_EVT_AVRCP_CONN) {
 			return STACK_EVENT_TYPE_A2DP;
-		}else if (evt >= APP_EVT_AVRCP_CT_CONN && evt <= APP_EVT_AVRCP_CT_PAUSE) {
+		}else if (evt >= APP_EVT_AVRCP_CONN && evt < APP_EVT_GATT_CONN) {
 			return STACK_EVENT_TYPE_AVRCP;
-		}else if (evt >= APP_EVT_GATT_SER_CONN && evt <= APP_EVT_GATT_SER_DATA_RCV) {
+		}else if (evt >= APP_EVT_GATT_CONN && evt < APP_EVT_SPP_CONN) {
 			return STACK_EVENT_TYPE_GATT;
-		}else if (evt >= APP_EVT_SPP_SER_CONN && evt <= APP_EVT_SPP_SER_DATA_RCV) {
+		}else if (evt >= APP_EVT_SPP_CONN && evt < APP_EVT_HID_CONN) {
 			return STACK_EVENT_TYPE_SPP;
-		}else if (evt >= APP_EVT_HID_SER_CONN && evt <= APP_EVT_HID_SER_REPORT_GAMEPAD) {
+		}else if (evt >= APP_EVT_HID_CONN && evt < APP_EVT_MAX) {
 			return STACK_EVENT_TYPE_HID;
 		}else {
 			return STACK_EVENT_TYPE_INVAILD;
@@ -229,7 +232,7 @@ void CProp::OnHfpBnClickedBtnDial()
 	string_to_str(num, t_num);
 
 	hfp_hf_cmd_control('i', num);
-	app_display(APP_EVT_HFP_HF_OUTGOING_CALL,NULL,0);
+	app_display(APP_EVT_HFP_OUTGOING_CALL,NULL,0);
 	//GetDlgItem(IDC_HFP_STATIC_DISPLAY)->SetWindowText(_T("OUTGOING"));
 }
 /*-----------hfp msg handler end---------*/
@@ -252,23 +255,53 @@ void CProp::OnAvrcpBnClickedBtnDisConn()
 }
 void CProp::OnAvrcpBnClickedBtnNext()
 {
+#ifdef APP_AUDIO_SINK
 	audio_sink_cmd_control('i', NULL);
+#endif
+
+#ifdef APP_AUDIO_SOURCE
+	//audio_source_cmd_control('i', NULL);
+#endif
 }
 void CProp::OnAvrcpBnClickedBtnPrev()
 {
+#ifdef APP_AUDIO_SINK
 	audio_sink_cmd_control('I', NULL);
+#endif
+
+#ifdef APP_AUDIO_SOURCE
+	//audio_source_cmd_control('i', NULL);
+#endif
 }
 void CProp::OnAvrcpBnClickedBtnPlay()
 {
+#ifdef APP_AUDIO_SINK
 	audio_sink_cmd_control('k', NULL);
+#endif
+
+#ifdef APP_AUDIO_SOURCE
+	audio_source_cmd_control('z', NULL);
+#endif
 }
 void CProp::OnAvrcpBnClickedBtnPause()
 {
-	audio_sink_cmd_control('L', NULL);
+#ifdef APP_AUDIO_SINK
+	audio_sink_cmd_control('p', NULL);
+#endif
+
+#ifdef APP_AUDIO_SOURCE
+	audio_source_cmd_control('i', NULL);
+#endif
 }
 void CProp::OnAvrcpBnClickedBtnStop()
 {
+#ifdef APP_AUDIO_SINK
 	audio_sink_cmd_control('K', NULL);
+#endif
+
+#ifdef APP_AUDIO_SOURCE
+	//audio_source_cmd_control('i', NULL);
+#endif
 }
 /*-----------avrcp msg handler end---------*/
 
@@ -291,7 +324,13 @@ void CProp::OnGattBnClickedBtnSend()
 	//data = (char *)malloc(datalen);
 	string_to_str(data, t_data);
 
+#ifdef APP_LE_STREAMER_SERVER
 	le_streamer_send_data((uint8_t *)data, datalen);
+#endif
+
+#ifdef APP_LE_STREAMER_CLIENT
+	le_streamer_client_send_data((uint8_t *)data, datalen);
+#endif
 	//free(data);
 }
 /*-----------gatt msg handler end---------*/
@@ -315,7 +354,13 @@ void CProp::OnSppBnClickedBtnSend()
 	//data = (char *)malloc(datalen);
 	string_to_str(data, t_data);
 
+#ifdef APP_SPP_STREAMER_SERVER
 	spp_streamer_send_data((uint8_t *)data, datalen);
+#endif
+
+#ifdef APP_SPP_STREAMER_CLIENT
+	spp_streamer_client_send_data((uint8_t *)data, datalen);
+#endif
 
 	//free(data);
 }
@@ -395,15 +440,22 @@ void app_display(uint16_t evt, uint8_t *param, uint16_t len)
 		break;
 		case IDD_PROP_SPP:
 		{
-			if(APP_EVT_SPP_SER_DATA_RCV != evt){
+			if(APP_EVT_SPP_DATA_RCV != evt){
 				CWnd *spp_wnd = pProp->GetDlgItem(IDC_SPP_STATIC_DISPLAY);
 				if (NULL != spp_wnd) {
 					spp_wnd->SetWindowText(stack_display_evt_str_map[evt]);
 				}
 			} else {
-				wchar_t s_str[1000];
-				str_to_wchar_t_str((char*)param, len, s_str, sizeof(s_str));
-
+				char s_temp[2048];
+				CString s_str;
+				//str_to_wchar_t_str((char*)param, len, s_str, sizeof(s_str));
+				memcpy(s_temp, param, len);
+				s_temp[len] = '\0';
+#ifndef UNICODE
+				s_str.Format("%s", s_temp);
+#else
+				s_str.Format(_T("%s"), s_temp);
+#endif
 				CWnd *spp_wnd = pProp->GetDlgItem(IDC_SPP_EDIT_RCV);
 				if (NULL != spp_wnd) {
 					spp_wnd->SetWindowText(s_str);
@@ -413,15 +465,22 @@ void app_display(uint16_t evt, uint8_t *param, uint16_t len)
 		break;
 		case IDD_PROP_GATT:
 		{
-			if (APP_EVT_GATT_SER_DATA_RCV != evt) {
+			if (APP_EVT_GATT_DATA_RCV != evt) {
 				CWnd *gatt_wnd = pProp->GetDlgItem(IDC_GATT_STATIC_DISPLAY);
 				if (NULL != gatt_wnd) {
 					gatt_wnd->SetWindowText(stack_display_evt_str_map[evt]);
 				}
 			} else {
-				wchar_t s_str[1000];
-				str_to_wchar_t_str((char*)param, len, s_str, sizeof(s_str));
-
+				char s_temp[2048];
+				CString s_str;
+				//str_to_wchar_t_str((char*)param, len, s_str, sizeof(s_str));
+				memcpy(s_temp, param, len);
+				s_temp[len] = '\0';
+#ifndef UNICODE
+				s_str.Format("%s", param);
+#else
+				s_str.Format(_T("%s"), param);
+#endif
 				CWnd *gatt_wnd = pProp->GetDlgItem(IDC_GATT_EDIT_RCV);
 				if (NULL != gatt_wnd) {
 					gatt_wnd->SetWindowText(s_str);

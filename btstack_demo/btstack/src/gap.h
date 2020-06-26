@@ -222,10 +222,18 @@ int  gap_mitm_protection_required_for_security_level(gap_security_level_t level)
 void gap_set_scan_parameters(uint8_t scan_type, uint16_t scan_interval, uint16_t scan_window);
 
 /**
+ * @brief Set parameters for LE extened Scan
+ */
+void gap_set_ext_scan_parameters(uint8_t scan_type, uint16_t scan_interval, uint16_t scan_window);
+
+/**
  * @brief Start LE Scan 
  */
 void gap_start_scan(void);
-
+/**
+ * @brief Start LE extended Scan
+ */
+void gap_start_ext_scan(void);
 /**
  * @brief Stop LE Scan
  */
